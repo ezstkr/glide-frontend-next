@@ -1,0 +1,7 @@
+@import '../styles/variables';
+
+@media screen and (min-width: 1024px) {
+    .navbar {
+      min-height: $header-height;
+    }
+}
