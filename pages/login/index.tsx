@@ -2,6 +2,8 @@ import { useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button, Form } from 'react-bulma-components';
+import { useSession, signIn } from "next-auth/react"
+import { useRouter } from 'next/router';
 import styles from './index.module.scss'
 import { Inter } from 'next/font/google'
 
@@ -11,8 +13,14 @@ const inter = Inter({
 })
 
 export default function Login() {
-  const idInput = useRef()
-  const passwordInput = useRef()
+  const idRegex = /^[a-zA-Z0-9+-\_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+  const passwordRegex = /^[A-Za-z\d$@$!%*?&\-=_+]{8,}$/;
+
+  const { data: session } = useSession()
+  const router = useRouter();
+
+  const idInputRef = useRef();
+  const passwordInputRef = useRef();
 
   const [idField, setIdField] = useState({
     id: '',
@@ -31,16 +39,56 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
 
   const idTyping = () => {
-    // Implement your idTyping function here
+    setIdField((prevState) => ({
+      ...prevState,
+      available: idRegex.test(prevState.id),
+      state: idRegex.test(prevState.id) ? 'is-success' : 'is-danger',
+    }));
   };
 
   const passwordCheck = () => {
-    // Implement your passwordCheck function here
+    setPasswordField((prevState) => ({
+      ...prevState,
+      available: passwordRegex.test(prevState.password),
+      state: passwordRegex.test(prevState.password) ? 'is-success' : 'is-danger',
+    }));
+  };
+  
+  const login = async () => {
+      if (isLoading) return;
+      setIsLoading(true);
+      await _login();
+      setIsLoading(false);
+  };
+  
+  const _login = async () => {
+      if (!idField.available) {
+        // return idInputRef.current.focus();
+      } else if (!passwordField.available) {
+        // return passwordInputRef.current.focus();
+      }
+  
+      const loginData = {
+        email: idField.id,
+        password: passwordField.password,
+      };
+  
+      try {
+        const response = await signIn('local', { data: loginData });
+        // await setUserToken(response.data.token);
+
+        if (session) {
+            toast('로그인 성공!', 'is-success');
+            return router.push('/');
+        } else {
+            return toast('로그인 실패, ID와 비밀번호를 다시한번 확인해 주세요.');
+        }
+      } catch (e) {
+        toast(e.response?.data?.message ?? '로그인 실패');
+        error_log(e);
+      }
   };
 
-  const login = () => {
-    // Implement your login function here
-  };
 
   return (
     <section id="login" className={`${styles.page} col-a-center mt-5 mb-6`}>
@@ -68,7 +116,7 @@ export default function Login() {
             >
               <Form.Control>
                 <Form.Input
-                  // ref={idInput}
+                  // ref={idInputRef}
                   value={idField.id}
                   placeholder={idField.placeholder}
                   required
@@ -96,7 +144,7 @@ export default function Login() {
             >
               <Form.Control>
                 <Form.Input
-                  // ref={passwordInput}
+                  // ref={passwordInputRef}
                   value={passwordField.password}
                   placeholder={passwordField.placeholder}
                   type="password"

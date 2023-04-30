@@ -1,13 +1,9 @@
 import Link from 'next/link';
-// import { useAuth } from '@/lib/auth';
+import { useSession, signOut } from "next-auth/react"
 import styles from 'components/header.module.scss';
 
 export default function Header() {
-  // const auth = useAuth();
-
-  async function handleLogout() {
-    // await auth.signOut();
-  }
+  const { data: session } = useSession()
 
   return (
     <nav className={`${styles.navbar} navbar header has-background-white px-3`} role="navigation" aria-label="main navigation">
@@ -26,11 +22,11 @@ export default function Header() {
 
       <div className="navbar-menu">
         <div className="navbar-end is-size-6">
-          {/* {!auth.loading && auth.user && (
-            <Link className="navbar-item" onClick={handleLogout}>
+          {session && (
+            <a className="navbar-item" onClick={() => signOut()}>
               Logout
-            </Link>
-          )} */}
+            </a>
+          )}
         </div>
       </div>
     </nav>
