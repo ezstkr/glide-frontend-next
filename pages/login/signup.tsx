@@ -2,6 +2,7 @@ import { useState, ChangeEvent  } from 'react'
 import Image from 'next/image';
 import { Button, Form } from 'react-bulma-components';
 
+import axios from '../../lib/api'
 import { useRouter } from 'next/router'
 
 import styles from './signup.module.scss'
@@ -148,6 +149,7 @@ export default function SignUp() {
       // TODO: make an HTTP POST request to `/auth/signup` endpoint
       // and handle the response accordingly
       console.log('Registration data:', registration_data);
+      // axios.post('/auth/signup', registration_data)
       router.push('/')
     } catch (e) {
       console.error('Registration failed:', e);
