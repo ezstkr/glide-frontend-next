@@ -1,10 +1,17 @@
-import { useState } from 'react'
+import { useState, ChangeEvent  } from 'react'
 import Image from 'next/image';
 import { Button, Form } from 'react-bulma-components';
 
 import { useRouter } from 'next/router'
 
 import styles from './signup.module.scss'
+import { Inter } from 'next/font/google'
+
+
+const inter = Inter({ 
+  subsets: ['latin'],
+  weight: ['400', '700'],
+})
 
 
 export default function SignUp() {
@@ -15,7 +22,7 @@ export default function SignUp() {
     placeholder: 'Username',
   })
   const [idField, setIdField] = useState({
-    id: '',
+    email: '',
     available: false,
     state: '',
     checkedId: null,
@@ -47,51 +54,66 @@ export default function SignUp() {
 
   const router = useRouter()
 
-  const nameCheck = () => {
+  const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const name = e.target.value;
     const available = nameRegex.test(nameField.name)
+
     setNameField({
       ...nameField,
+      name,
       available,
-      state: available ? 'is-success' : 'is-danger',
+      state: available ? 'success' : 'danger',
     })
   }
 
-  const idTyping = () => {
+  const handleIdChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const email = e.target.value;
+    const available = idRegex.test(idField.email)
+
     setIdField({
       ...idField,
-      checkedId: null,
-      available: idRegex.test(idField.id),
-      state: idRegex.test(idField.id) ? 'is-success' : 'is-danger',
+      email,
+      available: available,
+      state: available ? 'success' : 'danger',
     })
   }
 
-  const passwordCheck = () => {
+  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const password = e.target.value;
     const available = passwordRegex.test(passwordField.password)
+
     setPasswordField({
       ...passwordField,
+      password,
       available,
-      state: available ? 'is-success' : 'is-danger',
+      state: available ? 'success' : 'danger',
     })
     return available
   }
 
-  const passwordCheck2 = () => {
+  const handlePassword2Change = (e: ChangeEvent<HTMLInputElement>) => {
+    const password = e.target.value;
     const available =
       passwordRegex.test(passwordField.password) &&
       passwordField.password === passwordField2.password;
+
     setPasswordField2({
       ...passwordField2,
+      password,
       available,
-      state: available ? 'is-success' : 'is-danger',
+      state: available ? 'success' : 'danger',
     });
   };
 
-  const tokenCheck = () => {
+  const handleTokenChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const access_token = e.target.value;
     const available = !!tokenField.access_token;
+
     setTokenField({
       ...tokenField,
+      access_token,
       available,
-      state: available ? 'is-success' : 'is-danger',
+      state: available ? 'success' : 'danger',
     });
   };
 
@@ -103,21 +125,21 @@ export default function SignUp() {
   };
 
   const _signUp = async () => {
-    if (!nameField.available) {
-      return document.getElementById('nameInput')?.focus();
-    } else if (!idField.available) {
-        return document.getElementById('idInput')?.focus();
-    } else if (!passwordField.available) {
-      return document.getElementById('passwordInput')?.focus();
-    } else if (!passwordField2.available) {
-      return document.getElementById('password2Input')?.focus();
-    } else if (!tokenField.available) {
-      return document.getElementById('tokenInput')?.focus();
-    }
+    // if (!nameField.available) {
+    //   return document.getElementById('nameInput')?.focus();
+    // } else if (!idField.available) {
+    //     return document.getElementById('idInput')?.focus();
+    // } else if (!passwordField.available) {
+    //   return document.getElementById('passwordInput')?.focus();
+    // } else if (!passwordField2.available) {
+    //   return document.getElementById('password2Input')?.focus();
+    // } else if (!tokenField.available) {
+    //   return document.getElementById('tokenInput')?.focus();
+    // }
 
     const registration_data = {
       name: nameField.name,
-      email: idField.id,
+      email: idField.email,
       password: passwordField.password,
       accessToken: tokenField.access_token,
     };
@@ -126,6 +148,7 @@ export default function SignUp() {
       // TODO: make an HTTP POST request to `/auth/signup` endpoint
       // and handle the response accordingly
       console.log('Registration data:', registration_data);
+      router.push('/')
     } catch (e) {
       console.error('Registration failed:', e);
     }
@@ -133,15 +156,15 @@ export default function SignUp() {
 
   return (
     <section id="signup" className={`col-a-center mt-5 mb-6 ${styles.page}`}>
-      <div className="has-text-centered">
+      <div className="col-a-center has-text-centered">
         <Image src="/icons/pinata.png" width={144} height={144} priority alt="Pinata" className="mb-4" />
-  
-        <h1 className="has-text-black bold">
+
+        <h1 className={inter.className}>
           Join <Image src="/icons/title/glide-30.svg" width={30} height={30} alt="Glide" />
         </h1>
-        <h2 className="mt-2">Your personalized AI Tutor for TOEFL</h2>
+        <h2 className={`${inter.className} mt-2`}>Your personalized AI Tutor for TOEFL</h2>
       </div>
-  
+
       <div className="form-fields mt-5">
         <div className="form-field">
           <div className="form-field__title">
@@ -163,7 +186,7 @@ export default function SignUp() {
                 color={nameField.state}
                 placeholder={nameField.placeholder}
                 required
-                onInput={nameCheck}
+                onInput={handleNameChange}
               ></Form.Input>
             </Form.Field>
           </div>
@@ -184,11 +207,11 @@ export default function SignUp() {
             >
               <Form.Input
                 id="idInput"
-                value={idField.id}
+                value={idField.email}
                 color={idField.state}
                 placeholder={idField.placeholder}
                 required
-                onInput={idTyping}
+                onInput={handleIdChange}
               ></Form.Input>
             </Form.Field>
           </div>
@@ -217,7 +240,7 @@ export default function SignUp() {
                 password-reveal
                 type="password"
                 required
-                onInput={passwordCheck}
+                onInput={handlePasswordChange}
               ></Form.Input>
             </Form.Field>
           </div>
@@ -246,7 +269,7 @@ export default function SignUp() {
                 placeholder={passwordField2.placeholder}
                 type="password"
                 required
-                onInput={passwordCheck2}
+                onInput={handlePassword2Change}
                 onPaste={(e) => e.preventDefault()}
               />
             </Form.Field>
@@ -267,13 +290,13 @@ export default function SignUp() {
                 color={tokenField.state}
                 placeholder={tokenField.placeholder}
                 required
-                onInput={tokenCheck}
+                onInput={handleTokenChange}
               />
             </Form.Field>
           </div>
         </div>
       </div>
-        
+
       <Button
         className={`btn-submit is-primary rounded-3 mt-4 ${isLoading ? 'is-loading' : ''}`}
         disabled={isLoading}

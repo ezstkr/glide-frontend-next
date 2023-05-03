@@ -1,4 +1,4 @@
-import { useState, ChangeEvent} from 'react';
+import { useState, ChangeEvent } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button, Form } from 'react-bulma-components';
