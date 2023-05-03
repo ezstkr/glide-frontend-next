@@ -1,8 +1,9 @@
-import '@/styles/globals.scss'
-import Layout from './layout'
-import type { AppProps } from 'next/app'
-import { SessionProvider } from "next-auth/react"
-
+import '@/styles/globals.scss';
+import Layout from './layout';
+import type { AppProps } from 'next/app';
+import { ChakraProvider } from '@chakra-ui/react';
+import theme from '../theme';
+import { SessionProvider } from 'next-auth/react';
 
 export default function App({
   Component,
@@ -10,9 +11,11 @@ export default function App({
 }: AppProps) {
   return (
     <SessionProvider session={session}>
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
+      <ChakraProvider theme={theme}>
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </ChakraProvider>
     </SessionProvider>
-  )
+  );
 }

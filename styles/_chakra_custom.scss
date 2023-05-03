@@ -1,0 +1,10 @@
+.chakra-alert {
+    border-radius: 3rem !important;
+
+    button {
+        position: absolute;
+        transform: translateY(50%);
+        top: 0;
+        right: 0.75rem;
+    }
+}
