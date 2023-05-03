@@ -2,17 +2,21 @@ import { useState, ChangeEvent} from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button, Form } from 'react-bulma-components';
+
 import { useSession, signIn } from "next-auth/react"
 import { useRouter } from 'next/router';
 import useToast from '@/hooks/useToast';
 import { error_log } from '@/hooks/util';
+
 import styles from './index.module.scss'
 import { Inter } from 'next/font/google'
+
 
 const inter = Inter({ 
   subsets: ['latin'],
   weight: ['400', '700'],
 })
+
 
 export default function Login() {
   const idRegex = /^[a-zA-Z0-9+-\_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
