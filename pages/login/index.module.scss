@@ -10,6 +10,10 @@
             top: 2px;
             width: 72px;
         }
+
+        img {
+            display: inline-block;
+        }
     }
     
     h2 {
@@ -18,10 +22,6 @@
         line-height: 20px;
     
         color: #374151;
-    
-        img {
-            display: inline-block;
-        }
     }
     
     #btn-find-password {

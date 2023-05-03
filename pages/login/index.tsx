@@ -1,9 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState, ChangeEvent} from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button, Form } from 'react-bulma-components';
 import { useSession, signIn } from "next-auth/react"
 import { useRouter } from 'next/router';
+import useToast from '@/hooks/useToast';
+import { error_log } from '@/hooks/util';
 import styles from './index.module.scss'
 import { Inter } from 'next/font/google'
 
@@ -18,75 +20,77 @@ export default function Login() {
 
   const { data: session } = useSession()
   const router = useRouter();
-
-  const idInputRef = useRef();
-  const passwordInputRef = useRef();
+  const { showToast } = useToast();
 
   const [idField, setIdField] = useState({
-    id: '',
+    email: '',
     placeholder: 'glide@gmail.com',
     state: '',
-    available: true,
+    available: false,
   });
 
   const [passwordField, setPasswordField] = useState({
     password: '',
     placeholder: undefined,
     state: '',
-    available: true,
+    available: false,
   });
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const idTyping = () => {
+  const handleIdChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const _email = e.target.value;
+
     setIdField((prevState) => ({
       ...prevState,
-      available: idRegex.test(prevState.id),
-      state: idRegex.test(prevState.id) ? 'is-success' : 'is-danger',
+      email: _email,
+      available: idRegex.test(_email),
+      state: _email === '' ? '' : idRegex.test(_email) ? 'success' : 'danger',
     }));
   };
 
-  const passwordCheck = () => {
+  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const _password = e.target.value;
+
     setPasswordField((prevState) => ({
       ...prevState,
-      available: passwordRegex.test(prevState.password),
-      state: passwordRegex.test(prevState.password) ? 'is-success' : 'is-danger',
+      password: _password,
+      available: passwordRegex.test(_password),
+      state: _password === '' ? '' : passwordRegex.test(_password) ? 'success' : 'danger',
     }));
   };
   
   const login = async () => {
-      if (isLoading) return;
-      setIsLoading(true);
-      await _login();
-      setIsLoading(false);
+    if (isLoading) return;
+    setIsLoading(true);
+    await _login();
+    setIsLoading(false);
   };
   
   const _login = async () => {
-      if (!idField.available) {
-        // return idInputRef.current.focus();
-      } else if (!passwordField.available) {
-        // return passwordInputRef.current.focus();
-      }
-  
-      const loginData = {
-        email: idField.id,
-        password: passwordField.password,
-      };
-  
-      try {
-        const response = await signIn('local', { data: loginData });
-        // await setUserToken(response.data.token);
+    if (!idField.available) {
+      return document.getElementById('input-id')?.focus();
+    } else if (!passwordField.available) {
+      return document.getElementById('input-password')?.focus();
+    }
 
-        if (session) {
-            toast('로그인 성공!', 'is-success');
-            return router.push('/');
-        } else {
-            return toast('로그인 실패, ID와 비밀번호를 다시한번 확인해 주세요.');
-        }
-      } catch (e) {
-        toast(e.response?.data?.message ?? '로그인 실패');
-        error_log(e);
+    try {
+      await signIn('credentials', { 
+        email: idField.email, 
+        password: passwordField.password, 
+        redirect: false, 
+      });
+
+      if (session) {
+          showToast({ message: '로그인 성공!', status: 'success'});
+          return router.push('/');
+      } else {
+          return showToast({ message: '로그인 실패, ID와 비밀번호를 다시한번 확인해 주세요.' });
       }
+    } catch (e: any) {
+      showToast({ message: e.response?.data?.message ?? '로그인 실패'});
+      error_log(e);
+    }
   };
 
 
@@ -116,11 +120,12 @@ export default function Login() {
             >
               <Form.Control>
                 <Form.Input
-                  // ref={idInputRef}
-                  value={idField.id}
+                  id="input-id"
+                  value={idField.email}
+                  color={idField.state}
                   placeholder={idField.placeholder}
                   required
-                  onInput={idTyping}
+                  onInput={handleIdChange}
                 />
               </Form.Control>
             </Form.Field>
@@ -144,12 +149,13 @@ export default function Login() {
             >
               <Form.Control>
                 <Form.Input
-                  // ref={passwordInputRef}
+                  id="input-password"
                   value={passwordField.password}
+                  color={passwordField.state}
                   placeholder={passwordField.placeholder}
                   type="password"
                   required
-                  onInput={passwordCheck}
+                  onInput={handlePasswordChange}
                   onPaste={(e) => e.preventDefault()}
                   onKeyPress={(e) => e.key === 'Enter' && login()}
                 />
