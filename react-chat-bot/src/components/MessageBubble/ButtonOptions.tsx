@@ -1,31 +1,9 @@
 import React, { useState } from 'react';
 import EventBus from '../../helpers/event-bus';
-
-export interface PropsButtonOptions {
-  agent: string;
-  type: string;
-  text: string;
-  createdAt?: string;
-  disableInput: boolean;
-  reselectable?: boolean;
-  botTyping?: boolean;
-  options: {
-    text: string;
-    value: any;
-    action: string;
-    emit?: string;
-    type?: string;
-    to?: string;
-  }[];
-  options_multiple_choice?: {
-    text: string;
-    action: string;
-    value: string;
-  }[]
-}
+import { MessageData } from '../../shared/types/react-chat-bot';
 
 type Props = {
-  mainData: PropsButtonOptions;
+  mainData: MessageData;
 }
 
 const ButtonOptions: React.FC<Props> = ({ mainData }) => {
@@ -107,7 +85,7 @@ const ButtonOptions: React.FC<Props> = ({ mainData }) => {
         </div>
       )}
       <div className="qkb-msg-bubble-component__options-wrapper">
-        {mainData.options.map((item, index) => (
+        {mainData.options?.map((item, index) => (
           <div className="qkb-mb-button-options__item" key={index}>
             {item.action === 'postback' ? (
               <button

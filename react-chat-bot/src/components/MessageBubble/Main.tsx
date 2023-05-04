@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import SingleText from './SingleText';
-import ButtonOptions, { PropsButtonOptions } from './ButtonOptions';
+import ButtonOptions from './ButtonOptions';
+import { MessageData } from '../../shared/types/react-chat-bot';
 
 interface Props {
-  message: PropsButtonOptions;
+  message: MessageData;
   showUserIcon?: boolean;
   ratingEnable?: boolean;
   [key: string]: any;

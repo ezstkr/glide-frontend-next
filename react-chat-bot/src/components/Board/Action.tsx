@@ -1,16 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-export type MessageData = {
-  text: string
-}
-
 interface Props {
   inputPlaceholder?: string;
   inputDisablePlaceholder?: string;
   inputDisable?: boolean;
   iconSendSrc?: string;
   clearButton?: boolean;
-  onMessageSend: (value: MessageData) => void;
+  onMessageSend: (value: any) => void;
 }
 
 const QKBBoardAction: React.FC<Props> = ({

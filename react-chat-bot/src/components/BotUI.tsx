@@ -2,8 +2,10 @@ import { useState, useRef, useEffect } from 'react';
 import EventBus from '../helpers/event-bus';
 import BoardHeader from './Board/Header';
 import BoardContent from './Board/Content';
-import BoardAction, { MessageData } from './Board/Action';
+import BoardAction from './Board/Action';
 import AppStyle from './AppStyle';
+import { MessageDataOption } from '../shared/types/react-chat-bot';
+
 import '../assets/scss/_app.scss'
 import { CSSTransition } from 'react-transition-group';
 
@@ -20,7 +22,7 @@ type Props = {
   onInit?: () => void;
   onOpen?: () => void;
   onDestroy?: () => void;
-  onMsgSend?: (value: MessageData) => void;
+  onMsgSend?: (value: MessageDataOption) => void;
   onMsgClear?: () => void;
 };
 
@@ -112,11 +114,11 @@ const BotUI: React.FC<Props> = ({
     setBotActive(!botActive);
   };
 
-  const sendMessage = (value: MessageData) => {
+  const sendMessage = (value: MessageDataOption) => {
     onMsgSend(value);
   };
 
-  const selectOption = (value: MessageData) => {
+  const selectOption = (value: MessageDataOption) => {
     onMsgSend(value);
   };
 

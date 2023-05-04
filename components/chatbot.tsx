@@ -1,44 +1,26 @@
-import React, { useState, useEffect, useRef } from 'react';
-import BotIcon from '~/assets/icons/pinata.png';
-import userIcon from '~/assets/icons/user.svg';
-import VueChatBot from 'vue-chat-bot';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import axios from 'axios';
+import ReactChatBot, { MessageData, MessageDataOption } from 'react-chat-bot';
 
-export interface MessageData {
-  agent: string;
-  type: string;
-  text: string;
-  createdAt?: string;
-  disableInput: boolean;
-  reselectable?: boolean;
-  botTyping?: boolean;
-  options?: {
-    text: string;
-    value: any;
-    action: string;
-    emit?: string;
-    type?: string;
-    to?: string;
-  }[];
-  options_multiple_choice?: {
-    text: string;
-    action: string;
-    value: string;
-  }[];
-}
+import { useDispatch, useSelector } from "react-redux";
+import { setIsOpen, addMessageData, clearMessageData } from "../store/slices/botSlice";
+import { selectBotisOpen, selectBotMessageData } from "../store/slices/botSlice";
+
 
 type Props = {
   isOpen?: boolean;
   isDropMenu?: boolean;
   startMessageDelay?: number;
-  scenario?: Array<Array<MessageData>>;
+  scenario?: MessageData[][];
   questionId?: string | null;
   clearButton?: boolean;
   storeMessage?: boolean;
   ratingEnable?: boolean;
+  onChange?: (emit: string, value: any) => void;
 };
 
-const BotUI: React.FC<Props> = ({
+const ChatBot: React.FC<Props> = ({
   isOpen = false,
   isDropMenu = true,
   startMessageDelay = 0,
@@ -47,18 +29,58 @@ const BotUI: React.FC<Props> = ({
   clearButton = false,
   storeMessage = false,
   ratingEnable = false,
+  onChange = () => {},
 }) => {
+  const router = useRouter();
+
   const [messageData, setMessageData] = useState<Array<MessageData>>([]);
   const [botTyping, setBotTyping] = useState(false);
   const [inputDisable, setInputDisable] = useState<boolean>(scenario.length === 0 ? false : true);
   const [scenarioIndex, setScenarioIndex] = useState(0);
-  const MessageUnrelated = '저는 당신의 영어 실력을 향상시키기 위해 도와주는 글라이디입니다! 당신의 학습에 도움이 되는 질문이라면 모두 답변해 드릴 수 있으니, 문제와 관련된 질문을 작성해주세요 😊';
 
+  const dispatch = useDispatch();
+  const isOpenRedux = useSelector(selectBotisOpen);
+  const messageDataRedux = useSelector(selectBotMessageData);
+
+  const MessageUnrelated = '저는 당신의 영어 실력을 향상시키기 위해 도와주는 글라이디입니다! 당신의 학습에 도움이 되는 질문이라면 모두 답변해 드릴 수 있으니, 문제와 관련된 질문을 작성해주세요 😊';
+  let messageSound: HTMLAudioElement | null
+
+  const botOptions = {
+    botTitle: 'Glide',
+    colorScheme: '#fff',
+    textColor: '#000',
+    bubbleBtnSize: 60,
+    boardContentBg: isDropMenu ? '#F9FAFB' : '#F3F4F6',
+    botAvatarSize: 40,
+    botAvatarImg: '/icons/pinata.png',
+    userAvatarSize: 40,
+    userAvatarImg: '/icons/user.svg',
+    msgBubbleBgBot: '#fff',
+    msgBubbleBgUser: '#EFF6FF',
+    msgBubbleColorUser: '#000',
+    inputPlaceholder: 'Send Message',
+    inputDisableBg: '#fff',
+    inputDisablePlaceholder: 'Hit the buttons above to respond',
+    iconSendSrc: '/icons/send-white.svg',
+    iconBubbleSrc: '/icons/bubble.svg',
+    iconCloseSrc: '/icons/close.svg',
+  };
 
   useEffect(() => {
-    const messageSound = new Audio('/audios/bubble.mp3');
-    messageSound.volume = 0.7;
-  }, []);
+    messageSound = new Audio('/audios/bubble.mp3')
+    messageSound.volume = 0.7
+    
+    return () => {
+      if (messageSound) {
+        messageSound.pause()
+        messageSound = null
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    startScenario();
+  }, [scenario]);
 
   const botStart = () => {
     startScenario();
@@ -96,7 +118,7 @@ const BotUI: React.FC<Props> = ({
           messageSound.play();
           messageSound.muted = false;
         }
-        setInputDisable(message.disableInput);
+        setInputDisable(message.disableInput ?? false);
 
         if (i === scenario[scenarioIndex].length - 1) {
           if (!message.botTyping) {
@@ -108,24 +130,24 @@ const BotUI: React.FC<Props> = ({
     }
   };
 
-  const msgSend = (data) => {
+  const msgSend = (data: MessageDataOption) => {
     if (data.to !== undefined) {
-      return history.push(data.to);
+      return router.push(data.to);
     } else if (data.emit !== undefined) {
-      onChange(data);
+      onChange(data.emit, { key: data.emit.slice(data.emit.indexOf(':')+1), value: data.value})
     }
 
     const text = data.value !== 'Give me more hints' ? data.text : 'Give me more hints';
 
     // Push the user's message to board
-    const message = {
+    const message: MessageData = {
       agent: 'user',
       type: 'text',
       text: text,
     };
 
     if (storeMessage) {
-      setMessageData((prevData) => [...prevData, message]);
+      dispatch(addMessageData(message));
     } else {
       setMessageData((prevData) => [...prevData, message]);
     }
@@ -138,15 +160,15 @@ const BotUI: React.FC<Props> = ({
   };
 
   const msgClear = () => {
-    if (props.storeMessage) {
-      props.clearMessageData();
+    if (storeMessage) {
+      dispatch(clearMessageData())
     } else {
       setMessageData([]);
     }
     startScenario();
   };
 
-  const getResponse = (text) => {
+  const getResponse = (text: any) => {
     // Loading
     setBotTyping(true);
   
@@ -162,6 +184,8 @@ const BotUI: React.FC<Props> = ({
         } else {
           hintDenied = false;
         }
+
+        if (scenario[0][0].options === undefined) return;
   
         let sourceButtonMini = scenario[0][0].options.slice(4, 5)[0];
         if (scenario[0][0].options[4].text === 'Give me the source for this passage') {
@@ -184,27 +208,32 @@ const BotUI: React.FC<Props> = ({
             ]
         };
   
-        setMessageData([...messageData, replyMessage]);
-        setMessageSound(new Audio('/audios/bubble.mp3'));
-        setTimeout(() => {
-          messageSound.current.play();
-        }, 0);
+        if (storeMessage) {
+          dispatch(addMessageData(replyMessage));
+        } else {
+          setMessageData([...messageData, replyMessage]);
+        }
+        messageSound?.play();
   
         // finish
         setBotTyping(false);
-      })
+      });
+  };
+
+  const changeOpenState = (isOpen: boolean) => {
+    dispatch(setIsOpen(isOpen));
   };
 
   return (
     <div
       id="chatbot"
       className={`not-drop-menu ${!isDropMenu && "not-drop-menu"} ${
-        isOpenState && "is-open"
+        isOpenRedux && "is-open"
       }`}
     >
-      <VueChatBot
-        options={BotOptions}
-        messages={storeMessage ? messageDataStored : messageData}
+      <ReactChatBot
+        options={botOptions}
+        messages={storeMessage ? messageDataRedux : messageData}
         bot-typing={botTyping}
         input-disable={inputDisable || botTyping}
         is-open={isOpen}
@@ -215,21 +244,22 @@ const BotUI: React.FC<Props> = ({
         onMsgClear={msgClear}
         onOpen={() => changeOpenState(true)}
         onDestroy={() => changeOpenState(false)}
-      >
-        <div slot="header" className="is-flex">
-          <img
-            src="~/assets/icons/pinata.png"
-            width="32"
-            height="32"
-            alt="pinata"
-          />
-          <img
-            className="ml-3"
-            src="~/assets/icons/title/glide-28.svg"
-            alt="title"
-          />
-        </div>
-      </VueChatBot>
+        header={
+          <div slot="header" className="is-flex">
+            <img
+              src="/icons/pinata.png"
+              width="32"
+              height="32"
+              alt="pinata"
+            />
+            <img
+              className="ml-3"
+              src="/icons/title/glide-28.svg"
+              alt="title"
+            />
+          </div>
+        }
+      />
     </div>
   );
 };

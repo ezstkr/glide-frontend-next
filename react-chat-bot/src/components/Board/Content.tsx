@@ -1,10 +1,10 @@
 import React, { useRef, useEffect } from 'react';
 import MessageBubble from '../MessageBubble/Main';
 import MessageTyping from '../MessageBubble/Typing';
-import { PropsButtonOptions } from '../MessageBubble/ButtonOptions';
+import { MessageData } from '../../shared/types/react-chat-bot';
 
 type Props = {
-  mainData: Array<PropsButtonOptions>;
+  mainData: Array<MessageData>;
   botTyping?: boolean;
   botTypingChildren?: React.ReactNode;
   showUserIcon?: boolean;
@@ -33,7 +33,7 @@ const BoardContent: React.FC<Props> = ({
   return (
     <div className="qkb-board-content" ref={boardContentRef}>
       <div className="qkb-board-content__bubbles" ref={boardBubblesRef}>
-        {mainData.map((item: PropsButtonOptions, index: number) => (
+        {mainData.map((item: MessageData, index: number) => (
           <MessageBubble
             key={index}
             message={item}
