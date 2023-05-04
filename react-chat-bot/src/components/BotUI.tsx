@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import EventBus from '../helpers/event-bus';
 import BoardHeader from './Board/Header';
 import BoardContent from './Board/Content';
@@ -42,8 +42,9 @@ const BotUI: React.FC<Props> = ({
 }) => {
   const [botActive, setBotActive] = useState<boolean>(false);
   const [notification, setNotification] = useState<boolean>(false);
-  const [showFadeUp] = useState(true);
-  const [showScaleUp] = useState(true);
+  const nodeRef = useRef(null);
+  const nodeRefClose = useRef(null);
+  const nodeRefOpen = useRef(null);
 
   const defaultOptions = {
     botTitle: 'Chatbot',
@@ -132,9 +133,8 @@ const BotUI: React.FC<Props> = ({
 
   return (
     <div className={uiClasses.join(' ')}>
-      <CSSTransition in={botActive} classNames="qkb-fadeUp" timeout={300}>
-        {botActive ? (
-          <div className="qkb-board">
+      <CSSTransition in={botActive} nodeRef={nodeRef} classNames="qkb-fadeUp" unmountOnExit timeout={300}>
+          <div ref={nodeRef} className="qkb-board">
             <BoardHeader
               botTitle={optionsMain.botTitle}
               iconCloseSrc={optionsMain.iconCloseHeaderSrc}
@@ -159,7 +159,6 @@ const BotUI: React.FC<Props> = ({
               onMessageSend={sendMessage}
             />
           </div>
-        ) : <></>}
       </CSSTransition>
       <div className="qkb-bot-bubble">
         {notification && <span className="qkb-bubble-notification" />}
@@ -167,23 +166,26 @@ const BotUI: React.FC<Props> = ({
           {bubbleButton ? (
             bubbleButton
           ) : (
-            <CSSTransition in={showScaleUp} classNames="qkb-scaleUp" timeout={300}>
-              {!botActive ? (
-                <img
-                  className="qkb-bubble-btn-icon"
-                  src={optionsMain.iconBubbleSrc}
-                  key="1"
-                  alt="icon-bubble"
-                />
-              ) : (
-                <img
-                  className="qkb-bubble-btn-icon qkb-bubble-btn-icon--close"
-                  src={optionsMain.iconCloseSrc}
-                  key="2"
-                  alt="icon-close"
-                />
-              )}
+          <>
+            <CSSTransition in={!botActive} nodeRef={nodeRefOpen} classNames="qkb-scaleUp" unmountOnExit timeout={300}>
+              <img
+                ref={nodeRefOpen}
+                className="qkb-bubble-btn-icon"
+                src={optionsMain.iconBubbleSrc}
+                key="1"
+                alt="icon-bubble"
+              />
             </CSSTransition>
+            <CSSTransition in={botActive} nodeRef={nodeRefClose} classNames="qkb-scaleUp" unmountOnExit timeout={300}>
+              <img
+                ref={nodeRefClose}
+                className="qkb-bubble-btn-icon qkb-bubble-btn-icon--close"
+                src={optionsMain.iconCloseSrc}
+                key="2"
+                alt="icon-close"
+              />
+            </CSSTransition>
+          </>
           )}
           </button>
       </div>
