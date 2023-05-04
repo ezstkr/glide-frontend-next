@@ -50,7 +50,7 @@ const App = () => {
 
   return (
     <div id="app">
-      <img alt="Vue Bot UI" src="./assets/logo.png" />
+      <img alt="Vue Bot UI" src="/logo.png" />
       <VueChatBot
         options={botOptions}
         messages={messageData}
