@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import BotIcon from "./assets/icons/bot.png";
 import VueChatBot from "./components/BotUI";
 import { messageService } from "./helpers/message";
+import './App.scss';
 
 const App = () => {
   const [messageData, setMessageData] = useState<any>([]);
