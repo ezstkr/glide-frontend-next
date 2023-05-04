@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import EventBus from '../helpers/event-bus';
 import BoardHeader from './Board/Header';
 import BoardContent from './Board/Content';
-import BoardAction from './Board/Action';
+import BoardAction, { MessageData } from './Board/Action';
 import AppStyle from './AppStyle';
 import '../assets/scss/_app.scss'
 import { CSSTransition } from 'react-transition-group';
@@ -15,10 +15,12 @@ type Props = {
   isOpen?: boolean;
   clearButton?: boolean;
   ratingEnable?: boolean;
+  header?: React.ReactNode;
+  bubbleButton?: React.ReactNode;
   onInit?: () => void;
   onOpen?: () => void;
   onDestroy?: () => void;
-  onMsgSend?: (value: string) => void;
+  onMsgSend?: (value: MessageData) => void;
   onMsgClear?: () => void;
 };
 
@@ -30,6 +32,8 @@ const BotUI: React.FC<Props> = ({
   isOpen = false,
   clearButton = false,
   ratingEnable = false,
+  header = null,
+  bubbleButton = null,
   onInit = () => {},
   onOpen = () => {},
   onDestroy = () => {},
@@ -58,7 +62,7 @@ const BotUI: React.FC<Props> = ({
     msgBubbleColorUser: '#fff',
     inputPlaceholder: 'Message',
     inputDisableBg: '#fff',
-    inputDisablePlaceholder: null,
+    inputDisablePlaceholder: undefined,
     iconSendSrc: '/icons/send.svg',
     iconBubbleSrc: '/icons/bubble.svg',
     iconCloseSrc: '/icons/close.svg',
@@ -107,11 +111,11 @@ const BotUI: React.FC<Props> = ({
     setBotActive(!botActive);
   };
 
-  const sendMessage = (value: string) => {
+  const sendMessage = (value: MessageData) => {
     onMsgSend(value);
   };
 
-  const selectOption = (value: string) => {
+  const selectOption = (value: MessageData) => {
     onMsgSend(value);
   };
 
@@ -128,57 +132,60 @@ const BotUI: React.FC<Props> = ({
 
   return (
     <div className={uiClasses.join(' ')}>
-      {botActive && (
-        <BoardHeader
-          bot-title={optionsMain.botTitle}
-          icon-close-erc={optionsMain.iconCloseHeaderSrc}
-          on-close-bot={botToggle}
-        >
-          <template slot="header">
-            <slot name="header" />
-          </template>
-        </BoardHeader>
-      )}
-      <CSSTransition in={showFadeUp} classNames="qkb-fadeUp" timeout={300}>
-        <div className="qkb-board" v-if={botActive}>
-          <BoardContent
-            bot-typing={botTyping}
-            mainData={messages}
-            show-user-icon={optionsMain.userAvatarImg !== null}
-            rating-enable={ratingEnable}
-          />
-          <BoardAction
-            input-disable={inputDisable}
-            input-placeholder={optionsMain.inputPlaceholder}
-            input-disable-placeholder={optionsMain.inputDisablePlaceholder}
-            icon-send-src={optionsMain.iconSendSrc}
-            clear-button={clearButton}
-            onMessageSend={sendMessage}
-          />
-        </div>
+      <CSSTransition in={botActive} classNames="qkb-fadeUp" timeout={300}>
+        {botActive ? (
+          <div className="qkb-board">
+            <BoardHeader
+              botTitle={optionsMain.botTitle}
+              iconCloseSrc={optionsMain.iconCloseHeaderSrc}
+              onCloseBot={botToggle}
+            >
+              {header ?? (
+                header
+              )}
+            </BoardHeader>
+            <BoardContent
+              botTyping={botTyping}
+              mainData={messages}
+              showUserIcon={optionsMain.userAvatarImg !== null}
+              ratingEnable={ratingEnable}
+            />
+            <BoardAction
+              inputDisable={inputDisable}
+              inputPlaceholder={optionsMain.inputPlaceholder}
+              inputDisablePlaceholder={optionsMain.inputDisablePlaceholder}
+              iconSendSrc={optionsMain.iconSendSrc}
+              clearButton={clearButton}
+              onMessageSend={sendMessage}
+            />
+          </div>
+        ) : <></>}
       </CSSTransition>
       <div className="qkb-bot-bubble">
         {notification && <span className="qkb-bubble-notification" />}
         <button className="qkb-bubble-btn" onClick={botToggle}>
-          <slot name="bubbleButton" />
-          <CSSTransition in={showScaleUp} classNames="qkb-scaleUp" timeout={300}>
-            {!botActive ? (
-              <img
-                className="qkb-bubble-btn-icon"
-                src={optionsMain.iconBubbleSrc}
-                key="1"
-                alt="icon-bubble"
-              />
-            ) : (
-              <img
-                className="qkb-bubble-btn-icon qkb-bubble-btn-icon--close"
-                src={optionsMain.iconCloseSrc}
-                key="2"
-                alt="icon-close"
-              />
-            )}
-          </CSSTransition>
-        </button>
+          {bubbleButton ? (
+            bubbleButton
+          ) : (
+            <CSSTransition in={showScaleUp} classNames="qkb-scaleUp" timeout={300}>
+              {!botActive ? (
+                <img
+                  className="qkb-bubble-btn-icon"
+                  src={optionsMain.iconBubbleSrc}
+                  key="1"
+                  alt="icon-bubble"
+                />
+              ) : (
+                <img
+                  className="qkb-bubble-btn-icon qkb-bubble-btn-icon--close"
+                  src={optionsMain.iconCloseSrc}
+                  key="2"
+                  alt="icon-close"
+                />
+              )}
+            </CSSTransition>
+          )}
+          </button>
       </div>
       <AppStyle options={optionsMain} />
       <div className="qkb-preload-image">

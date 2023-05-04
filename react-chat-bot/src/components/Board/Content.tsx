@@ -6,6 +6,7 @@ import { PropsButtonOptions } from '../MessageBubble/ButtonOptions';
 type Props = {
   mainData: Array<PropsButtonOptions>;
   botTyping?: boolean;
+  botTypingChildren?: React.ReactNode;
   showUserIcon?: boolean;
   ratingEnable?: boolean;
 };
@@ -13,6 +14,7 @@ type Props = {
 const BoardContent: React.FC<Props> = ({
   mainData,
   botTyping = false,
+  botTypingChildren = null,
   showUserIcon = false,
   ratingEnable = false,
 }) => {
@@ -39,11 +41,13 @@ const BoardContent: React.FC<Props> = ({
             ratingEnable={ratingEnable}
           />
         ))}
-        {botTyping && (
-          <MessageTyping>
-            <slot name="botTyping" />
-          </MessageTyping>
-        )}
+        {botTyping ? (
+          (!botTypingChildren) ? (
+            <MessageTyping />
+            ) : (
+            botTypingChildren
+          )
+        ) : <></>}
       </div>
     </div>
   );

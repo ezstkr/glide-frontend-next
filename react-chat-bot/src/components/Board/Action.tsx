@@ -1,12 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 
+export type MessageData = {
+  text: string
+}
+
 interface Props {
   inputPlaceholder?: string;
   inputDisablePlaceholder?: string;
   inputDisable?: boolean;
   iconSendSrc?: string;
   clearButton?: boolean;
-  onMessageSend: (text: string) => void;
+  onMessageSend: (value: MessageData) => void;
 }
 
 const QKBBoardAction: React.FC<Props> = ({
@@ -30,7 +34,7 @@ const QKBBoardAction: React.FC<Props> = ({
 
   const handleSendMessage = () => {
     if (messageText) {
-      onMessageSend(messageText);
+      onMessageSend({ text: messageText });
       setMessageText(null);
     }
   };
@@ -46,7 +50,7 @@ const QKBBoardAction: React.FC<Props> = ({
   };
 
   const actionClass = () => {
-    const actionClasses = [];
+    const actionClasses = ['qkb-board-action'];
 
     if (inputDisable) {
       actionClasses.push('qkb-board-action--disabled');

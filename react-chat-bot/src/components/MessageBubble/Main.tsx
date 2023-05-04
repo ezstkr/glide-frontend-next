@@ -34,7 +34,11 @@ const MsgBubble: React.FC<Props> = ({ message, showUserIcon = false, ratingEnabl
 
   return (
     <div className={`qkb-msg-bubble ${bubbleClass}`}>
-      {message.agent === 'bot' || showUserIcon ? <div className="qkb-msg-avatar__img">&nbsp;</div> : null}
+      {message.agent === 'bot' || showUserIcon ? (
+        <div className="qkb-msg-avatar">
+          <div className="qkb-msg-avatar__img">&nbsp;</div>
+        </div>
+      ) : null}
       <div className="qkb-msg-content">
         {componentType}
         {message.agent === 'bot' && ratingEnable ? (

@@ -28,21 +28,22 @@ const App = () => {
   };
 
   const msgSend = (value: any) => {
-    setMessageData([
-      ...messageData,
+    const newMessageData = [
+      ...messageData, 
       { agent: "user", type: "text", text: value.text },
-    ]);
-    getResponse();
+    ]
+    setMessageData(newMessageData);
+    getResponse(newMessageData);
   };
 
-  const getResponse = () => {
+  const getResponse = (newMessageData: Array<any>) => {
     setBotTyping(true);
 
     messageService.createMessage().then((response: any) => {
       const replyMessage = { agent: "bot", ...response };
 
       setInputDisable(response.disableInput);
-      setMessageData([...messageData, replyMessage]);
+      setMessageData([...newMessageData, replyMessage]);
 
       setBotTyping(false);
     });
