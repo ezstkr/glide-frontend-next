@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
-import ReactChatBot, { MessageData, MessageDataOption } from 'react-chat-bot';
+// import ReactChatBot, { MessageData, MessageDataOption } from 'react-chat-bot';
+import ReactChatBot, { MessageData, MessageDataOption } from 'react-chat-bot/src/react-chat-bot';
 
 import { useDispatch, useSelector } from "react-redux";
 import { setIsOpen, addMessageData, clearMessageData } from "../store/slices/botSlice";
@@ -64,6 +65,7 @@ const ChatBot: React.FC<Props> = ({
     iconSendSrc: '/icons/send-white.svg',
     iconBubbleSrc: '/icons/bubble.svg',
     iconCloseSrc: '/icons/close.svg',
+    iconCloseHeaderSrc: '/icons/arrow-down-invert.svg',
   };
 
   useEffect(() => {
@@ -226,10 +228,8 @@ const ChatBot: React.FC<Props> = ({
 
   return (
     <div
-      id="chatbot"
-      className={`not-drop-menu ${!isDropMenu && "not-drop-menu"} ${
-        isOpenRedux && "is-open"
-      }`}
+      id="chatbot" 
+      className={`${!isDropMenu && "not-drop-menu"} ${isOpenRedux && "is-open"}`}
     >
       <ReactChatBot
         options={botOptions}

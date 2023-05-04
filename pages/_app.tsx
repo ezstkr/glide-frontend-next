@@ -1,21 +1,29 @@
 import '@/styles/globals.scss';
-import Layout from './layout';
 import type { AppProps } from 'next/app';
+
+import { SessionProvider } from 'next-auth/react';
+import { Provider } from "react-redux";
+import { wrapper } from "../store/store";
+
+import Layout from './layout';
 import { ChakraProvider } from '@chakra-ui/react';
 import theme from '../theme';
-import { SessionProvider } from 'next-auth/react';
+import '../react-chat-bot/src/assets/scss/_app.scss'
 
-export default function App({
-  Component,
-  pageProps: { session, ...pageProps },
-}: AppProps) {
+
+export default function App({ Component, ...rest }: AppProps) {
+  const { store, props } = wrapper.useWrappedStore(rest);
+  const { session, pageProps } = props;
+
   return (
-    <SessionProvider session={session}>
-      <ChakraProvider theme={theme}>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
-      </ChakraProvider>
-    </SessionProvider>
+    <Provider store={store}>
+      <SessionProvider session={session}>
+        <ChakraProvider theme={theme}>
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </ChakraProvider>
+      </SessionProvider>
+    </Provider>
   );
 }
