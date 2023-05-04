@@ -9,7 +9,7 @@ const QkbBoardHeader = ({
     <div className="qkb-board-header">
       <div className="qkb-board-header__title">{botTitle}</div>
       <div className="qkb-board-header__close" onClick={onCloseBot}>
-        <img src={iconCloseSrc} width="24" height="24" />
+        <img src={iconCloseSrc} width="24" height="24" alt="icon-close" />
       </div>
     </div>
   );

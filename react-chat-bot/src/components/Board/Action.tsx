@@ -96,7 +96,7 @@ const QKBBoardAction: React.FC<Props> = ({
             onClick={handleSendMessage}
             disabled={!messageText || inputDisable}
           >
-            <img className="qkb-action-icon qkb-action-icon--send" src={iconSendSrc} />
+            <img className="qkb-action-icon qkb-action-icon--send" src={iconSendSrc} alt="icon-send" />
           </button>
         </div>
       </div>

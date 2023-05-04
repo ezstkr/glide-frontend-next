@@ -38,7 +38,7 @@ const App = () => {
   const getResponse = () => {
     setBotTyping(true);
 
-    messageService.createMessage().then((response) => {
+    messageService.createMessage().then((response: any) => {
       const replyMessage = { agent: "bot", ...response };
 
       setInputDisable(response.disableInput);

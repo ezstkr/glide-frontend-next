@@ -38,8 +38,8 @@ const BotUI: React.FC<Props> = ({
 }) => {
   const [botActive, setBotActive] = useState<boolean>(false);
   const [notification, setNotification] = useState<boolean>(false);
-  const [showFadeUp, setShowFadeUp] = useState(true);
-  const [showScaleUp, setShowScaleUp] = useState(true);
+  const [showFadeUp] = useState(true);
+  const [showScaleUp] = useState(true);
 
   const defaultOptions = {
     botTitle: 'Chatbot',
@@ -68,6 +68,14 @@ const BotUI: React.FC<Props> = ({
   const optionsMain = { ...defaultOptions, ...options };
 
   useEffect(() => {
+    EventBus.on('select-button-option', selectOption);
+
+    return () => {
+      EventBus.off('select-button-option', selectOption);
+    }
+  });
+
+  useEffect(() => {
     if (isOpen) {
       setBotActive(true);
     }
@@ -75,12 +83,14 @@ const BotUI: React.FC<Props> = ({
     return () => {
       onDestroy();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   useEffect(() => {
     if (!botActive) {
       setNotification(true);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
   useEffect(() => {
@@ -90,6 +100,7 @@ const BotUI: React.FC<Props> = ({
     } else {
       onDestroy();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [botActive]);
 
   const botToggle = () => {
@@ -104,11 +115,13 @@ const BotUI: React.FC<Props> = ({
     onMsgSend(value);
   };
 
-  const clearChat = () => {
-    onMsgClear();
-  };
+  // const clearChat = () => {
+  //   onMsgClear();
+  // };
 
   const uiClasses = [];
+  uiClasses.push('qkb-bot-ui');
+
   if (optionsMain.animation) {
     uiClasses.push('qkb-bot-ui--animate');
   }
@@ -149,18 +162,19 @@ const BotUI: React.FC<Props> = ({
         <button className="qkb-bubble-btn" onClick={botToggle}>
           <slot name="bubbleButton" />
           <CSSTransition in={showScaleUp} classNames="qkb-scaleUp" timeout={300}>
-            {!botActive && (
+            {!botActive ? (
               <img
                 className="qkb-bubble-btn-icon"
                 src={optionsMain.iconBubbleSrc}
                 key="1"
+                alt="icon-bubble"
               />
-            )}
-            {botActive && (
+            ) : (
               <img
                 className="qkb-bubble-btn-icon qkb-bubble-btn-icon--close"
                 src={optionsMain.iconCloseSrc}
                 key="2"
+                alt="icon-close"
               />
             )}
           </CSSTransition>

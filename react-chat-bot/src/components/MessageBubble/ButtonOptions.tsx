@@ -28,7 +28,7 @@ type Props = {
   mainData: PropsButtonOptions;
 }
 
-const ButtonOptions: React.FC<any> = (mainData: PropsButtonOptions) => {
+const ButtonOptions: React.FC<Props> = ({ mainData }) => {
   const [selectedItem, setSelectedItem] = useState<{
     text: string;
     action: string;
