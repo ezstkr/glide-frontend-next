@@ -76,6 +76,7 @@
 
   &.qkb-msg-bubble--user {
     justify-content: flex-start;
+    flex-direction: row-reverse;
 
     .qkb-msg-bubble-component {
       margin: 0 0.5rem 0 5rem;
