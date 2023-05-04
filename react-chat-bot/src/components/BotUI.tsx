@@ -6,7 +6,7 @@ import BoardAction from './Board/Action';
 import AppStyle from './AppStyle';
 import { MessageDataOption } from '../shared/types/react-chat-bot';
 
-import '../assets/scss/_app.scss'
+// import '../assets/scss/_app.scss'
 import { CSSTransition } from 'react-transition-group';
 
 type Props = {
@@ -42,8 +42,8 @@ const BotUI: React.FC<Props> = ({
   onMsgSend = () => {},
   onMsgClear = () => {},
 }) => {
-  const [botActive, setBotActive] = useState<boolean>(false);
-  const [notification, setNotification] = useState<boolean>(false);
+  const [botActive, setBotActive] = useState(false);
+  const [notification, setNotification] = useState(false);
   const nodeRef = useRef(null);
   const nodeRefClose = useRef(null);
   const nodeRefOpen = useRef(null);
