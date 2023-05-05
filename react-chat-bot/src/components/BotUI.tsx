@@ -91,7 +91,7 @@ const BotUI: React.FC<Props> = ({
       onDestroy();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen]);
+  }, []);
 
   useEffect(() => {
     if (!botActive) {

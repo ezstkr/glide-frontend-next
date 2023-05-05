@@ -1,7 +1,7 @@
 export interface MessageDataOptionBasic {
   text: string;
   value: any;
-  action: string;
+  action?: string;
 }
 
 export interface MessageDataOption extends MessageDataOptionBasic {

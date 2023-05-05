@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 // import ReactChatBot, { MessageData, MessageDataOption } from 'react-chat-bot';
@@ -34,6 +34,7 @@ const ChatBot: React.FC<Props> = ({
 }) => {
   const router = useRouter();
 
+  const initialScenario = scenario
   const [messageData, setMessageData] = useState<Array<MessageData>>([]);
   const [botTyping, setBotTyping] = useState(false);
   const [inputDisable, setInputDisable] = useState<boolean>(scenario.length === 0 ? false : true);
@@ -80,8 +81,16 @@ const ChatBot: React.FC<Props> = ({
     }
   }, [])
 
+  const isMountedRef = useRef(false);
+
   useEffect(() => {
-    startScenario();
+    isMountedRef.current = true;
+  }, []);
+
+  useEffect(() => {
+    if (isMountedRef.current && scenario !== initialScenario) {
+      startScenario();
+    }
   }, [scenario]);
 
   const botStart = () => {

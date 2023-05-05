@@ -1,34 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import EventBus from '../../helpers/event-bus';
-import { MessageData } from '../../shared/types/react-chat-bot';
+import { MessageData, MessageDataOptionBasic } from '../../shared/types/react-chat-bot';
 
 type Props = {
   mainData: MessageData;
 }
 
 const ButtonOptions: React.FC<Props> = ({ mainData }) => {
-  const [selectedItem, setSelectedItem] = useState<{
-    text: string;
-    action: string;
-    value: string;
-  } | null>(null);
+  const [selectedItem, setSelectedItem] = useState<MessageDataOptionBasic | null>(null);
   const [selectedItemMultiple, setSelectedItemMultiple] = useState<
-    Set<{
-      text: string;
-      action: string;
-      value: string;
-    }>
+    Set<MessageDataOptionBasic>
   >(new Set());
-  const [loading, setLoading] = useState(false);
 
   const disabled =
-    selectedItem !== null && !mainData.reselectable && !selectedItemMultiple.size;
+    selectedItem !== null && !mainData.reselectable;
 
-  const selectOption = (value: {
-    text: string;
-    action: string;
-    value: string;
-  }) => {
+  const selectOption = (value: MessageDataOptionBasic) => {
     setSelectedItem(value);
 
     if (mainData.options_multiple_choice) {
@@ -42,13 +29,13 @@ const ButtonOptions: React.FC<Props> = ({ mainData }) => {
     }
   };
 
-  const selectOptionMultiple = (value: {
-    text: string;
-    action: string;
-    value: string;
-  }) => {
+  const selectOptionMultiple = (value: MessageDataOptionBasic) => {
     if (!selectedItemMultiple.has(value)) {
-      setSelectedItemMultiple((prev) => prev.add(value));
+      setSelectedItemMultiple((prev) => {
+        const updated = new Set(prev);
+        updated.add(value);
+        return updated;
+      });
     } else {
       setSelectedItemMultiple((prev) => {
         const updated = new Set(prev);
@@ -56,8 +43,6 @@ const ButtonOptions: React.FC<Props> = ({ mainData }) => {
         return updated;
       });
     }
-    setLoading(true);
-    setLoading(false);
   };
 
   return (
@@ -74,7 +59,7 @@ const ButtonOptions: React.FC<Props> = ({ mainData }) => {
           {mainData.options_multiple_choice.map((item, index) => (
             <div className="qkb-mb-button-options__item" key={index}>
               <button
-                className={`qkb-mb-button-options__btn${!loading && selectedItemMultiple.has(item) ? ' active' : ''}`}
+                className={`qkb-mb-button-options__btn${selectedItemMultiple.has(item) ? ' active' : ''}`}
                 disabled={disabled}
                 onClick={() => selectOptionMultiple(item)}
               >

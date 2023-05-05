@@ -18,11 +18,11 @@ export default function App({ Component, ...rest }: AppProps) {
   return (
     <Provider store={store}>
       <SessionProvider session={session}>
-        <ChakraProvider theme={theme}>
+        {/* <ChakraProvider theme={theme}> */}
           <Layout>
             <Component {...pageProps} />
           </Layout>
-        </ChakraProvider>
+        {/* </ChakraProvider> */}
       </SessionProvider>
     </Provider>
   );
