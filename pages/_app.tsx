@@ -4,6 +4,7 @@ import type { AppProps } from 'next/app';
 import { SessionProvider } from 'next-auth/react';
 import { Provider } from "react-redux";
 import { wrapper } from "../store/store";
+import { PersistGate } from "redux-persist/integration/react";
 
 import Layout from './layout';
 import { ChakraProvider } from '@chakra-ui/react';
@@ -17,13 +18,15 @@ export default function App({ Component, ...rest }: AppProps) {
 
   return (
     <Provider store={store}>
-      <SessionProvider session={session}>
-        {/* <ChakraProvider theme={theme}> */}
-          <Layout>
-            <Component {...pageProps} />
-          </Layout>
-        {/* </ChakraProvider> */}
-      </SessionProvider>
+      <PersistGate persistor={store.__persistor} loading={null}>
+        <SessionProvider session={session}>
+          {/* <ChakraProvider theme={theme}> */}
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          {/* </ChakraProvider> */}
+        </SessionProvider>
+      </PersistGate>
     </Provider>
   );
 }
