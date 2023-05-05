@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useSession, signOut } from "next-auth/react"
-import styles from 'components/header.module.scss';
+import styles from './header.module.scss';
 
 export default function Header() {
   const { data: session } = useSession()

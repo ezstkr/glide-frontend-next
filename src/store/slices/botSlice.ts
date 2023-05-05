@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { AppState } from "../store";
-import { MessageData } from "../../react-chat-bot/src/shared/types/react-chat-bot";
+import { MessageData } from "react-chat-bot/src/shared/types/react-chat-bot";
 
 // Type for our state
 export interface BotState {

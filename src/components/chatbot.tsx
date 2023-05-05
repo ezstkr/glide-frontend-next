@@ -5,8 +5,8 @@ import axios from 'axios';
 import ReactChatBot, { MessageData, MessageDataOption } from 'react-chat-bot/src/react-chat-bot';
 
 import { useDispatch, useSelector } from "react-redux";
-import { setIsOpen, addMessageData, clearMessageData } from "../store/slices/botSlice";
-import { selectBotisOpen, selectBotMessageData } from "../store/slices/botSlice";
+import { setIsOpen, addMessageData, clearMessageData } from "@/store/slices/botSlice";
+import { selectBotisOpen, selectBotMessageData } from "@/store/slices/botSlice";
 
 
 type Props = {

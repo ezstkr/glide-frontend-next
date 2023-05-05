@@ -2,7 +2,7 @@ import { useState, ChangeEvent  } from 'react'
 import Image from 'next/image';
 import { Button, Form } from 'react-bulma-components';
 
-import axios from '../../lib/api'
+import axios from '@/lib/api'
 import { useRouter } from 'next/router'
 
 import styles from './signup.module.scss'
