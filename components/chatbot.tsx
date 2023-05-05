@@ -243,11 +243,11 @@ const ChatBot: React.FC<Props> = ({
       <ReactChatBot
         options={botOptions}
         messages={storeMessage ? messageDataRedux : messageData}
-        bot-typing={botTyping}
-        input-disable={inputDisable || botTyping}
-        is-open={isOpen}
-        clear-button={clearButton}
-        rating-enable={ratingEnable}
+        botTyping={botTyping}
+        inputDisable={inputDisable || botTyping}
+        isOpen={isOpen}
+        clearButton={clearButton}
+        ratingEnable={ratingEnable}
         onInit={botStart}
         onMsgSend={msgSend}
         onMsgClear={msgClear}
