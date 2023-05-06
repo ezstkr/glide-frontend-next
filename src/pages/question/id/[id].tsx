@@ -52,79 +52,71 @@ const QuestionPage = () => {
   ];
 
   useEffect(() => {
-    const fetchQuestionData = async () => {
-      let qRes: any;
-      await error_can_happen(async () => {
-        qRes = await axios.get(`/questions/${id}`);
-        setQ(qRes.data);
-      });
-      
-      const newScenario: MessageData[][] = [[{
-        agent: 'bot',
-        type: 'button',
-        text: startTextList[isMyQuestion ? q_idx-1 : 0],
-        disableInput: false,
-        reselectable: true,
-        options: [
-          {
-            text: 'Give me a hint',
-            value: 'Give me a hint',
-            action: 'postback'
-          },
-          {
-            text: 'Quiz me!',
-            value: 'Quiz me!',
-            action: 'postback'
-          },
-          {
-            text: 'Try a similar example',
-            value: '',
-            action: 'url'
-          },
-          {
-            text: 'Key vocabulary',
-            value: 'Key vocabulary',
-            action: 'postback'
-          },
-          {
-            ...q_idx === 1 ? {
-              text: messageData.length === 0 ? 'Give me the source for this passage' : 'Source for this passage',
-              value: '',
-              action: 'url'
-            } : {
-              text: 'Translate to Korean',
-              value: 'Translate to Korean',
-              action: 'postback'
-            },
-          }
-        ],
-      }]];
-      if (newScenario[0][0].options && q_idx === 1) {
-        newScenario[0][0].options[4].value = q.url
-      }
-      let res2: any;
-      await error_can_happen(async () => {
-        res2 = await axios.post('/chat', { questionId: id, text: 'Try a similar example' })
-        if (newScenario[0][0].options) {
-          newScenario[0][0].options[2].value = `/question/id/${res2.data.response}`
-        }
-        
-        setScenario(newScenario);
-      });
-    
-      let passageWithHighlight = qRes.data.passage.slice();
-      for (const highlight of qRes?.data.highlight ?? []) {
-        passageWithHighlight = passageWithHighlight.replace(
-          highlight.sentence, 
-          `<span class="${highlight.correct ? 'green' : 'red'}">` 
-          + choiceSymbols[highlight.choice] + highlight.sentence + 
-          '</span>'
-        )
-      }
-      setPassageWithHighlight(passageWithHighlight);
-    };
-    fetchQuestionData();
+    loadData();
   }, [id]);
+
+  const loadData = async () => {
+    let qRes: any;
+    let res2: any;
+    await error_can_happen(async () => {
+      qRes = await axios.get(`/questions/${id}`);
+      res2 = await axios.post('/chat', { questionId: id, text: 'Try a similar example' })
+      setQ(qRes.data);
+    });
+    
+    const newScenario: MessageData[][] = [[{
+      agent: 'bot',
+      type: 'button',
+      text: startTextList[isMyQuestion ? q_idx-1 : 0],
+      disableInput: false,
+      reselectable: true,
+      options: [
+        {
+          text: 'Give me a hint',
+          value: 'Give me a hint',
+          action: 'postback'
+        },
+        {
+          text: 'Quiz me!',
+          value: 'Quiz me!',
+          action: 'postback'
+        },
+        {
+          text: 'Try a similar example',
+          value: `/question/id/${res2?.data?.response}`,
+          action: 'url'
+        },
+        {
+          text: 'Key vocabulary',
+          value: 'Key vocabulary',
+          action: 'postback'
+        },
+        {
+          ...q_idx === 1 ? {
+            text: messageData.length === 0 ? 'Give me the source for this passage' : 'Source for this passage',
+            value: q.url,
+            action: 'url'
+          } : {
+            text: 'Translate to Korean',
+            value: 'Translate to Korean',
+            action: 'postback'
+          },
+        }
+      ],
+    }]];
+    setScenario(newScenario);
+  
+    let passageWithHighlight = qRes.data.passage.slice();
+    for (const highlight of qRes?.data.highlight ?? []) {
+      passageWithHighlight = passageWithHighlight.replace(
+        highlight.sentence, 
+        `<span class="${highlight.correct ? 'green' : 'red'}">` 
+        + choiceSymbols[highlight.choice] + highlight.sentence + 
+        '</span>'
+      )
+    }
+    setPassageWithHighlight(passageWithHighlight);
+  };
 
   const check = () => {
     dispatch(updateUserQuestion({ questionId: q._id, solved: true, correct: correct }))
