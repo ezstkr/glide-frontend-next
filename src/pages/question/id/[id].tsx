@@ -129,19 +129,19 @@ const QuestionPage = () => {
   const check = () => {
     dispatch(updateUserQuestion({ questionId: q._id, solved: true, correct: correct }))
     updateOMR({
-        index: q_idx - 1, 
-        correct: correct
+      index: q_idx - 1, 
+      correct: correct
     })
     setChecked(true)
   };
 
   const next = () => {
     if (!isLastQuestion) {
-        const nextQuestionIdx = q_idx
-        const nextId = userCurriculum[nextQuestionIdx].questionId
-        router.push(`/question/id/${nextId}`)
+      const nextQuestionIdx = q_idx
+      const nextId = userCurriculum[nextQuestionIdx].questionId
+      router.push(`/question/id/${nextId}`)
     } else {
-        router.push(`/question/finish`)
+      router.push(`/question/result`)
     }
   };
 

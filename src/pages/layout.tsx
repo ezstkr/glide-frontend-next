@@ -10,6 +10,10 @@ type LayoutProps = {
 
 export default function Layout({ children }: LayoutProps) {
   const router = useRouter();
+  const backgroundClassName = 
+    router.asPath.includes('login') ? '' : 
+    router.pathname === '/_error' ? 'has-background-black' :
+    'has-background-light2'
 
   useEffect(() => {
     let vh = window.innerHeight * 0.01;
@@ -29,7 +33,7 @@ export default function Layout({ children }: LayoutProps) {
   }, []);
 
   return (
-    <div className={!router.asPath.includes('login') ? 'has-background-light2' : ''}>
+    <div className={backgroundClassName}>
       <Header />
       <div className={`${styles.container} ${inter.variable} col-a-center is-10`}>
         {children}
