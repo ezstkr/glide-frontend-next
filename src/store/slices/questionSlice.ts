@@ -1,7 +1,7 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { AppState } from '../store';
-import { $axios, $error_can_happen } from '../utils/api';
-import { Question, QuestionInit, GetQuestion, NextQuestion, GetNextQuestion } from '../../src/shared/question';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { AppState } from "../store";
+import axios from '@/lib/api'
+import { Question, QuestionInit, GetQuestion, NextQuestion, GetNextQuestion } from '@/shared/types/question'
 
 // Type for our state
 export interface QuestionState {
@@ -17,33 +17,48 @@ const initialState: QuestionState = {
   },
 };
 
+export const getQuestion = createAsyncThunk(
+  'question/get',
+  async ({id}: GetQuestion, { rejectWithValue }) => {
+    try {
+      const item = await axios.get(`/questions/${id}`);
+      return item;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const getNextQuestion = createAsyncThunk(
+  'question/getNext',
+  async ({onlyUnsolved}: GetNextQuestion, { rejectWithValue }) => {
+    try {
+      const nextItem = await axios.get(`/users/next-question?onlyUnsolved=${onlyUnsolved}`);
+      return nextItem;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 // Actual Slice
 export const questionSlice = createSlice({
-  name: 'question',
+  name: "question",
   initialState,
   reducers: {
-    setItem(state, action: PayloadAction<Question>) {
-      state.item = action.payload;
-    },
-    setNextItem(state, action: PayloadAction<NextQuestion>) {
-      state.nextItem = action.payload;
-    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(getQuestion.fulfilled, (state, action) => {
+        state.item = action.payload.data;
+      })
+      .addCase(getNextQuestion.fulfilled, (state, action) => {
+        state.nextItem = action.payload.data;
+      });
   },
 });
-
-export const { setItem, setNextItem } = questionSlice.actions;
 
 export const selectQuestionItem = (state: AppState) => state.question.item;
 export const selectQuestionNextItem = (state: AppState) => state.question.nextItem;
 
 export default questionSlice.reducer;
-
-export const getQuestion = ({ id }: GetQuestion) => async (dispatch) => {
-  const item = await $error_can_happen(() => $axios.$get(`/questions/${id}`));
-  dispatch(setItem(item));
-};
-
-export const getNextQuestion = ({ onlyUnsolved }: GetNextQuestion) => async (dispatch) => {
-  const nextItem = await $error_can_happen(() => $axios.$get(`/users/next-question?onlyUnsolved=${onlyUnsolved}`));
-  dispatch(setNextItem(nextItem));
-};

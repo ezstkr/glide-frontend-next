@@ -15,11 +15,15 @@ import {
 import storage from "redux-persist/lib/storage";
 
 import { botSlice } from "./slices/botSlice";
+import { OMRSlice } from "./slices/OMRSlice";
+import { questionSlice } from "./slices/questionSlice";
 import { userSlice } from "./slices/userSlice";
 
 
 const rootReducer = combineReducers({
   [botSlice.name]: botSlice.reducer,
+  [OMRSlice.name]: OMRSlice.reducer,
+  [questionSlice.name]: questionSlice.reducer,
   [userSlice.name]: userSlice.reducer,
 });
 

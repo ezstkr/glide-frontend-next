@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import ChatBot from '@/components/chatbot';
 import { CreateCurriculumForm } from '@/shared/types/user';
 import { MessageData } from "react-chat-bot/src/shared/types/react-chat-bot";

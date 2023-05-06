@@ -14,20 +14,24 @@ const initialState: OMRState = {
 };
 
 // Actual Slice
-export const omrSlice = createSlice({
+export const OMRSlice = createSlice({
   name: "OMR",
   initialState,
   reducers: {
-    // Action to update answer of a question
-    update(state, action) {
+    initOMR(state, action) {
+      state.item = Array(state.n_question).fill(null);
+    },
+  
+    updateOMR(state, action) {
       const { index, correct } = action.payload;
       state.item[index] = correct;
     },
   },
 });
 
-export const { update } = omrSlice.actions;
+export const { initOMR, updateOMR } = OMRSlice.actions;
 
+export const selectNQuesetion = (state: AppState) => state.OMR.n_question;
 export const selectOMRItem = (state: AppState) => state.OMR.item;
 
-export default omrSlice.reducer;
+export default OMRSlice.reducer;
