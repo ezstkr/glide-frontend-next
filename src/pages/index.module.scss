@@ -1,10 +1,10 @@
 .page {
     .title {
         margin-top: 225px;
-        transition: 1.5s;
     }
 
     .titleMoved {
+        transition: 1.5s;
         margin-top: 60px;
         margin-bottom: 0px;
         margin-bottom: var(--title-margin-bottom, 0px);

@@ -88,7 +88,7 @@ const ResultPage: React.FC = () => {
   return (
     <ResultPageDiv id="result" className="w-100">
       <div id="result-title" className="has-background-light2 py-4">
-        <CSSTransition in={transition.after_2000} timeout={500} classNames="slide-y-down">
+        <CSSTransition in={transition.after_2000} classNames="slide-y-down-500" timeout={500} mountOnEnter>
           <div className="col-a-center">
             <h2>Result</h2>
   
@@ -101,7 +101,7 @@ const ResultPage: React.FC = () => {
   
       <div id="result-detail" className="has-background-white">
         <div className="container col">
-          <CSSTransition in={transition.after_0} timeout={500} classNames="zoom-y">
+          <CSSTransition in={transition.after_0} classNames="zoom-y" timeout={300}>
             <div id="your-score">
               <h2 className="bold">Your Score</h2>
   
@@ -124,7 +124,7 @@ const ResultPage: React.FC = () => {
             </div>
           </CSSTransition>
   
-          <CSSTransition in={transition.after_2500} timeout={500} classNames="slide-y-down">
+          <CSSTransition in={transition.after_2500} classNames="slide-y-down-500" timeout={500} mountOnEnter>
             <div id="analysis">
               <h2 className="bold">Analysis</h2>
   
