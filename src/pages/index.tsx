@@ -1,20 +1,151 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import SlideYDownTransition from '../components/SlideYDownTransition';
-import ChatBot, { ChatBotEvent } from '../components/ChatBot';
-import { CreateCurriculumForm } from '../shared/user';
-import { Scenario } from '../shared/vue-chat-bot';
-import { userState, botState } from '../store';
+import ChatBot from '@/components/chatbot';
+import { CreateCurriculumForm } from '@/shared/types/user';
+import { MessageData } from "react-chat-bot/src/shared/types/react-chat-bot";
+
+import { useDispatch, useSelector } from "react-redux";
+import { createCurriculum } from "@/store/slices/userSlice";
+import { selectUserCurriculum } from "@/store/slices/userSlice";
+import { clearMessageData } from "@/store/slices/botSlice";
+
+import styles from './index.module.scss';
 
 export default function Index() {
+  const dispatch = useDispatch();
+  const userCurriculum = useSelector(selectUserCurriculum);
+
   const [createCurriculumForm, setCreateCurriculumForm] = useState<CreateCurriculumForm>({});
   const [transition, setTransition] = useState({
     after_1000: false,
     after_2000: false,
     after_3500: false,
   });
-  const [scenario, setScenario] = useState<Scenario>([]);
-  const [scenario2, setScenario2] = useState<Scenario>([]);
+  const [scenario, setScenario] = useState<MessageData[][]>([
+    [
+      {
+        agent: 'bot',
+        type: 'text',
+        text: '안녕하세요! 당신의 토플 교육을 도와줄 글라이디입니다 :)',
+        disableInput: true,
+      },
+      {
+        agent: 'bot',
+        type: 'text',
+        text: '오늘은 Reading 부분부터 수업을 진행할 예정입니다. 맞춤형 커리큘럼을 제작하기 위해 몇 가지 질문을 드리겠습니다!',
+        disableInput: true,
+      },
+      {
+        agent: 'bot',
+        type: 'button',
+        text: '처음 토플 공부인가요?',
+        disableInput: true,
+        options: [
+          {
+            text: 'Yes',
+            value: true,
+            action: 'postback',
+            emit: 'update:newbie',
+          },
+          {
+            text: 'No',
+            value: false,
+            action: 'postback',
+            emit: 'update:newbie',
+          },
+        ],
+      },
+    ],
+    [
+      {
+        agent: 'bot',
+        type: 'button',
+        text: '당신의 영어 실력은 어느 수준인가요?',
+        disableInput: true,
+        options: [
+          {
+            text: '초급',
+            value: 1,
+            action: 'postback',
+            emit: 'update:difficulty',
+          },
+          {
+            text: '중급',
+            value: 2,
+            action: 'postback',
+            emit: 'update:difficulty',
+          },
+          {
+            text: '고급',
+            value: 3,
+            action: 'postback',
+            emit: 'update:difficulty',
+          },
+        ],
+      },
+    ],
+    [
+      {
+        agent: 'bot',
+        type: 'button',
+        text: '어떤 분야의 글을 읽는 것이 가장 어렵나요?',
+        disableInput: true,
+        options: [
+          {
+            text: '제출하기',
+            value: null,
+            action: 'postback',
+            emit: 'update:topics',
+          },
+        ],
+        options_multiple_choice: [
+          {
+            text: 'science',
+            value: 'science',
+          },
+          {
+            text: 'history',
+            value: 'history',
+          },
+          {
+            text: 'economics',
+            value: 'economics',
+          },
+          {
+            text: 'literature',
+            value: 'literature',
+          },
+        ]
+      },
+    ],
+    [
+      {
+        agent: 'bot',
+        type: 'text',
+        text: '맞춤형 커리큘럼을 생성하고 있습니다. 잠시만 기다려주세요 😊',
+        disableInput: true,
+        botTyping: true,
+      },
+    ]
+  ]);
+  const [scenario2] = useState<MessageData[][]>([
+    [
+      {
+        agent: 'bot',
+        type: 'button',
+        text: '자 준비가 되셨으면 시작해볼까요? 🚀',
+        disableInput: true,
+        options: [
+          {
+            text: 'Let’s Start!',
+            value: null,
+            action: 'postback',
+            to: '',
+          },
+        ],
+      },
+    ],
+  ]);
 
   useEffect(() => {
     setAnimationTimeout();
@@ -46,12 +177,12 @@ export default function Index() {
     setCreateCurriculumForm((prev) => ({ ...prev, [key]: value }));
 
     if (key === 'topics') {
-      userState.createCurriculum(createCurriculumForm);
-      botState.clearMessageData();
+      createCurriculum(createCurriculumForm);
+      dispatch(clearMessageData);
       setTimeout(() => {
         if (scenario2[0][0].options) {
           scenario2[0][0].options[0].to = `/question/id/${
-            userState.userCurriculum.length !== 0 ? userState.userCurriculum[0].questionId : 0
+            userCurriculum.length !== 0 ? userCurriculum[0].questionId : 0
           }`;
         }
         setScenario(scenario2);
@@ -59,22 +190,24 @@ export default function Index() {
     }
   }
 
-  function handleChatBotEvent(event: ChatBotEvent) {
-    if (event.type === 'update' && ['newbie', 'difficulty', 'topics'].includes(event.field)) {
-      updateForm({ key: event.field, value: event.value });
+  function handleChatBotEvent(emit: string, data: any) {
+    if ([
+        'update:newbie', 
+        'update:difficulty', 
+        'update:topics'
+      ].includes(emit)) {
+      updateForm({ key: data.key, value: data.value });
     }
   }
 
   return (
     <div id="index" className="has-background-light2">
-      <SlideYDownTransition>
         <div id="title" className={transition.after_2000 ? 'moved' : ''} style={{ display: transition.after_1000 ? 'block' : 'none' }}>
           <h1>
             Welcome to <Image src="/icons/title/glide-30.svg" width={60} height={60} alt="Glide" />!
           </h1>
           <h2 className="mt-2">Your personalized AI Tutor for TOEFL</h2>
         </div>
-      </SlideYDownTransition>
 
       <ChatBot
         style={{ display: transition.after_3500 ? 'block' : 'none' }}
@@ -82,9 +215,7 @@ export default function Index() {
         isDropMenu={false}
         startMessageDelay={3500}
         scenario={scenario}
-        onUpdateNewbie={value => updateForm({ key: 'newbie', value })}
-        onUpdateDifficulty={value => updateForm({ key: 'difficulty', value })}
-        onUpdateTopics={value => updateForm({ key: 'topics', value })}
+        onChange={handleChatBotEvent}
       />
     </div>
   );

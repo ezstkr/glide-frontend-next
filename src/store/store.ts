@@ -15,10 +15,12 @@ import {
 import storage from "redux-persist/lib/storage";
 
 import { botSlice } from "./slices/botSlice";
+import { userSlice } from "./slices/userSlice";
 
 
 const rootReducer = combineReducers({
   [botSlice.name]: botSlice.reducer,
+  [userSlice.name]: userSlice.reducer,
 });
 
 const makeConfiguredStore = () =>
