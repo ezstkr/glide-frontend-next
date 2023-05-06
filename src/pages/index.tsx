@@ -10,6 +10,14 @@ import { selectUserCurriculum } from "@/store/slices/userSlice";
 import { clearMessageData } from "@/store/slices/botSlice";
 
 import styles from './index.module.scss';
+import { Inter } from 'next/font/google'
+
+
+const inter = Inter({ 
+  subsets: ['latin'],
+  weight: ['400', '700'],
+})
+
 
 export default function Index() {
   const dispatch = useDispatch();
@@ -18,6 +26,7 @@ export default function Index() {
   const [createCurriculumForm, setCreateCurriculumForm] = useState<CreateCurriculumForm>({});
   const [transition, setTransition] = useState({
     after_1000: false,
+    after_1500: false,
     after_2000: false,
     after_3500: false,
   });
@@ -165,6 +174,9 @@ export default function Index() {
       setTransition((prev) => ({ ...prev, after_1000: true }));
     }, 1000);
     setTimeout(() => {
+      setTransition((prev) => ({ ...prev, after_1500: true }));
+    }, 1500);
+    setTimeout(() => {
       setTransition((prev) => ({ ...prev, after_2000: true }));
     }, 2000);
     setTimeout(() => {
@@ -201,13 +213,18 @@ export default function Index() {
   }
 
   return (
-    <div id="index" className="has-background-light2">
-        <div id="title" className={transition.after_2000 ? 'moved' : ''} style={{ display: transition.after_1000 ? 'block' : 'none' }}>
-          <h1>
-            Welcome to <Image src="/icons/title/glide-30.svg" width={60} height={60} alt="Glide" />!
-          </h1>
-          <h2 className="mt-2">Your personalized AI Tutor for TOEFL</h2>
-        </div>
+    <div className={`${styles.page} has-background-light2`}>
+      <div 
+        id="title" 
+        className={
+          `${styles.title} ${!transition.after_1500 ? 'slideYDownIn' : ''} ${transition.after_2000 ? styles.titleMoved : ''} ${inter.className}`
+        }
+        style={{ display: transition.after_1000 ? 'block' : 'none' }}>
+        <h1>
+          Welcome to <img src="/icons/title/glide-30.svg" alt="Glide" />!
+        </h1>
+        <h2 className="mt-2">Your personalized AI Tutor for TOEFL</h2>
+      </div>
 
       <ChatBot
         style={{ display: transition.after_3500 ? 'block' : 'none' }}

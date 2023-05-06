@@ -1,0 +1,30 @@
+.page {
+    .title {
+        margin-top: 225px;
+        transition: 1.5s;
+    }
+
+    .titleMoved {
+        margin-top: 60px;
+        margin-bottom: 0px;
+        margin-bottom: var(--title-margin-bottom, 0px);
+    }
+
+    h1 {
+        text-align: center;
+        font-weight: 700;
+        font-size: 30px;
+        line-height: 36px;
+        
+        color: #000000 !important;
+    }
+    
+    h2 {
+        text-align: center;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 20px;
+        
+        color: #374151 !important;
+    }
+}

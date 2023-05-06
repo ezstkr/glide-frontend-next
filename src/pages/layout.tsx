@@ -1,5 +1,6 @@
 import { ReactNode, useEffect } from 'react';
 import Header from '@/components/header';
+import { useRouter } from 'next/router';
 import styles from './layout.module.scss';
 
 type LayoutProps = {
@@ -7,6 +8,8 @@ type LayoutProps = {
 };
 
 export default function Layout({ children }: LayoutProps) {
+  const router = useRouter();
+
   useEffect(() => {
     let vh = window.innerHeight * 0.01;
     document.documentElement.style.setProperty("--vh", `${vh}px`);
@@ -25,7 +28,7 @@ export default function Layout({ children }: LayoutProps) {
   }, []);
 
   return (
-    <div>
+    <div className={!router.asPath.includes('login') ? 'has-background-light2' : ''}>
       <Header />
       <div className={`${styles.container} col-a-center is-10`}>
         {children}

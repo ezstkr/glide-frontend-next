@@ -10,6 +10,7 @@ import { selectBotisOpen, selectBotMessageData } from "@/store/slices/botSlice";
 
 
 type Props = {
+  style?: React.CSSProperties;
   isOpen?: boolean;
   isDropMenu?: boolean;
   startMessageDelay?: number;
@@ -22,6 +23,7 @@ type Props = {
 };
 
 const ChatBot: React.FC<Props> = ({
+  style = {},
   isOpen = false,
   isDropMenu = true,
   startMessageDelay = 0,
@@ -238,6 +240,7 @@ const ChatBot: React.FC<Props> = ({
   return (
     <div
       id="chatbot" 
+      style={style}
       className={`${!isDropMenu && "not-drop-menu"} ${isOpenRedux && "is-open"}`}
     >
       <ReactChatBot
