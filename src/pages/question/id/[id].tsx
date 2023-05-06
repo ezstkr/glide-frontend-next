@@ -4,12 +4,14 @@ import axios from 'axios';
 import { Answer2Index, Answer2Symbol, Index2Answer, Question, QuestionInit } from '@/shared/types/question';
 import ChatBot from '@/components/chatbot';
 import { MessageData } from "react-chat-bot/src/shared/types/react-chat-bot";
+import { UpdateUserQuestion } from "@/shared/types/user";
+import { error_can_happen } from '@/hooks/util';
 
 import { useDispatch, useSelector } from "react-redux";
 import { selectQuestionItem } from "@/store/slices/questionSlice";
 import { selectNQuesetion, updateOMR } from "@/store/slices/OMRSlice";
 import { selectUserCurriculum, updateUserQuestion } from "@/store/slices/userSlice";
-import { selectBotisOpen } from "@/store/slices/botSlice";
+import { selectBotisOpen, selectBotMessageData } from "@/store/slices/botSlice";
 import { QuestionPageDiv } from "./[id].styled";
 
 
@@ -22,12 +24,13 @@ const QuestionPage = () => {
   const n_question = useSelector(selectNQuesetion);
   const question = useSelector(selectQuestionItem);
   const isOpenRedux = useSelector(selectBotisOpen);
+  const messageData = useSelector(selectBotMessageData);
 
   const answer2Index: Answer2Index = {'a': 0, 'b': 1, 'c': 2, 'd': 3}
   const index2Answer: Index2Answer = {0: 'A', 1: 'B', 2: 'C', 3: 'D'}
   const choiceSymbols: Answer2Symbol = {'a': 'ⓐ', 'b': 'ⓑ', 'c': 'ⓒ', 'd': 'ⓓ'}
   
-  const q_idx = userCurriculum.findIndex(item => item.questionId === question.item._id) + 1
+  const q_idx = userCurriculum.findIndex((item: UpdateUserQuestion) => item.questionId === question._id) + 1
   const isMyQuestion = q_idx !== 0
   const q_explanation = question.explanation.replaceAll(String.fromCharCode(10), " <br><br> ")
   const answerIndex = answer2Index[question.answer]
@@ -50,8 +53,11 @@ const QuestionPage = () => {
 
   useEffect(() => {
     const fetchQuestionData = async () => {
-      const qRes = await axios.get(`/questions/${router.query.id}`);
-      setQ(qRes.data);
+      let qRes: any;
+      await error_can_happen(async () => {
+        qRes = await axios.get(`/questions/${id}`);
+        setQ(qRes.data);
+      });
       
       const newScenario: MessageData[][] = [[{
         agent: 'bot',
@@ -65,21 +71,49 @@ const QuestionPage = () => {
             value: 'Give me a hint',
             action: 'postback'
           },
+          {
+            text: 'Quiz me!',
+            value: 'Quiz me!',
+            action: 'postback'
+          },
+          {
+            text: 'Try a similar example',
+            value: '',
+            action: 'url'
+          },
+          {
+            text: 'Key vocabulary',
+            value: 'Key vocabulary',
+            action: 'postback'
+          },
+          {
+            ...q_idx === 1 ? {
+              text: messageData.length === 0 ? 'Give me the source for this passage' : 'Source for this passage',
+              value: '',
+              action: 'url'
+            } : {
+              text: 'Translate to Korean',
+              value: 'Translate to Korean',
+              action: 'postback'
+            },
+          }
         ],
       }]];
       if (newScenario[0][0].options && q_idx === 1) {
         newScenario[0][0].options[4].value = q.url
       }
-    
-      const res2 = await axios.post('/chat', { questionId: router.query.id, text: 'Try a similar example' })
-      if (newScenario[0][0].options) {
-        newScenario[0][0].options[2].value = `/question/id/${res2.data.response}`
-      }
-    
-      setScenario(newScenario);
+      let res2: any;
+      await error_can_happen(async () => {
+        res2 = await axios.post('/chat', { questionId: id, text: 'Try a similar example' })
+        if (newScenario[0][0].options) {
+          newScenario[0][0].options[2].value = `/question/id/${res2.data.response}`
+        }
+        
+        setScenario(newScenario);
+      });
     
       let passageWithHighlight = qRes.data.passage.slice();
-      for (const highlight of qRes.data.highlight) {
+      for (const highlight of qRes?.data.highlight ?? []) {
         passageWithHighlight = passageWithHighlight.replace(
           highlight.sentence, 
           `<span class="${highlight.correct ? 'green' : 'red'}">` 
@@ -132,13 +166,14 @@ const QuestionPage = () => {
                   ['a', 'b', 'c', 'd'].map((key, idx) => (
                     <div key={`choice_${idx}`} className="choice">
                       <input
+                        id={`choice_${key}`}
                         type="radio"
                         name="userChoiceIndex"
                         value={idx}
                         checked={userChoiceIndex === idx}
                         onChange={(e) => setUserChoiceIndex(Number(e.target.value))}
                       />
-                      <label>{q.choices[key]}</label>
+                      <label htmlFor={`choice_${key}`}>{q.choices[key]}</label>
                     </div>
                   ))}
               </div>

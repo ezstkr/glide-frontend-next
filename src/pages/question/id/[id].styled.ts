@@ -101,12 +101,14 @@ h1 {
         font-weight: 400;
         line-height: 24px;
 
-        input {
-            font-size: 9px;
-        }
-        .control-label {
-            font-size: 18px;
-        }
+        border-radius: 2px;
+        font-size: 0.75rem;
+        margin-right: 0.5em;
+    }
+
+    label {
+        cursor: pointer;
+        font-size: 18px;
     }
 
 }
