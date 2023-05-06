@@ -9,13 +9,6 @@ import { selectUserCurriculum } from "@/store/slices/userSlice";
 import { clearMessageData } from "@/store/slices/botSlice";
 
 import styles from './index.module.scss';
-import { Inter } from 'next/font/google'
-
-
-const inter = Inter({ 
-  subsets: ['latin'],
-  weight: ['400', '700'],
-})
 
 
 export default function Index() {
@@ -216,7 +209,7 @@ export default function Index() {
       <div 
         id="title" 
         className={
-          `${styles.title} ${!transition.after_1500 ? 'slideYDownIn' : ''} ${transition.after_2000 ? styles.titleMoved : ''} ${inter.className}`
+          `${styles.title} ${!transition.after_1500 ? 'slideYDownIn' : ''} ${transition.after_2000 ? styles.titleMoved : ''}`
         }
         style={{ display: transition.after_1000 ? 'block' : 'none' }}>
         <h1>

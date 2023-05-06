@@ -2,6 +2,7 @@ import { ReactNode, useEffect } from 'react';
 import Header from '@/components/header';
 import { useRouter } from 'next/router';
 import styles from './layout.module.scss';
+import { inter } from '@/styles/fonts';
 
 type LayoutProps = {
   children: ReactNode;
@@ -30,7 +31,7 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div className={!router.asPath.includes('login') ? 'has-background-light2' : ''}>
       <Header />
-      <div className={`${styles.container} col-a-center is-10`}>
+      <div className={`${styles.container} ${inter.variable} col-a-center is-10`}>
         {children}
       </div>
     </div>

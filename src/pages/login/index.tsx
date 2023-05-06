@@ -9,13 +9,6 @@ import useToast from '@/hooks/useToast';
 import { error_log } from '@/hooks/util';
 
 import styles from './index.module.scss'
-import { Inter } from 'next/font/google'
-
-
-const inter = Inter({ 
-  subsets: ['latin'],
-  weight: ['400', '700'],
-})
 
 
 export default function Login() {
@@ -103,10 +96,10 @@ export default function Login() {
       <div className="col-a-center has-text-centered">
         <Image src="/icons/pinata.png" width={144} height={144} priority alt="Pinata" className="mb-4" />
 
-        <h1 className={inter.className}>
+        <h1>
           Welcome to <Image src="/icons/title/glide-30.svg" width={30} height={30} alt="Glide" />
         </h1>
-        <h2 className={`${inter.className} mt-2`}>Your personalized AI Tutor for TOEFL</h2>
+        <h2 className="mt-2">Your personalized AI Tutor for TOEFL</h2>
       </div>
 
       <div className="form-fields mt-5">

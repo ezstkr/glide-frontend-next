@@ -1,8 +1,11 @@
 .page {
     h1 {
+        font-family: var(--font-inter);
         font-weight: 700;
         font-size: 30px;
         line-height: 36px;
+
+        color: black;
     
         img {
             display: inline-block;
@@ -13,6 +16,7 @@
     }
     
     h2 {
+        font-family: var(--font-inter);
         font-weight: 400;
         font-size: 14px;
         line-height: 20px;

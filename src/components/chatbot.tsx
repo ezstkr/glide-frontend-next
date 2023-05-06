@@ -7,6 +7,7 @@ import ReactChatBot, { MessageData, MessageDataOption } from 'react-chat-bot/src
 import { useDispatch, useSelector } from "react-redux";
 import { setIsOpen, addMessageData, clearMessageData } from "@/store/slices/botSlice";
 import { selectBotisOpen, selectBotMessageData } from "@/store/slices/botSlice";
+import styles from './chatbot.module.scss';
 
 
 type Props = {
@@ -241,7 +242,7 @@ const ChatBot: React.FC<Props> = ({
     <div
       id="chatbot" 
       style={style}
-      className={`${!isDropMenu && "not-drop-menu"} ${isOpenRedux && "is-open"}`}
+      className={`${styles.chatbot} ${!isDropMenu && "not-drop-menu"} ${isOpenRedux && "is-open"}`}
     >
       <ReactChatBot
         options={botOptions}
