@@ -132,7 +132,7 @@ export default function Login() {
         <div className="form-field">
           <div className="form-field__title space-between">
             <span className="bold">Password</span>
-            {/* <Link id="btn-find-password" href="/login/find-password" className="has-text-grey-dark underline">
+            {/* <Link id="btn-find-password" href="/login/find-password" className={`${styles.btnFindPassword} has-text-grey-dark underline`}>
               Forgot your password?
             </Link> */}
           </div>
@@ -170,7 +170,7 @@ export default function Login() {
         Log in
       </Button>
 
-      <p id="bottom" className="my-5">
+      <p id="bottom" className={`${styles.bottom} my-5`}>
         계정이 없으세요?&nbsp;
         <Link href="/login/signup" className="underline has-text-grey-dark">
           회원가입

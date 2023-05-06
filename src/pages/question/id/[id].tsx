@@ -10,6 +10,7 @@ import { selectQuestionItem } from "@/store/slices/questionSlice";
 import { selectNQuesetion, updateOMR } from "@/store/slices/OMRSlice";
 import { selectUserCurriculum, updateUserQuestion } from "@/store/slices/userSlice";
 import { selectBotisOpen } from "@/store/slices/botSlice";
+import { QuestionPageDiv } from "./[id].styled";
 
 
 const QuestionPage = () => {
@@ -48,7 +49,7 @@ const QuestionPage = () => {
   ];
 
   useEffect(() => {
-    const getQuestion = async () => {
+    const fetchQuestionData = async () => {
       const qRes = await axios.get(`/questions/${router.query.id}`);
       setQ(qRes.data);
       
@@ -88,14 +89,6 @@ const QuestionPage = () => {
       }
       setPassageWithHighlight(passageWithHighlight);
     };
-    getQuestion();
-    }, [router.query.id, userCurriculum]);
-
-  useEffect(() => {
-    async function fetchQuestionData() {
-      // Fetch question data and set states here
-    }
-
     fetchQuestionData();
   }, [id]);
 
@@ -119,7 +112,7 @@ const QuestionPage = () => {
   };
 
   return (
-    <div id="quiz" className="col-a-center">
+    <QuestionPageDiv id="quiz" className="col-a-center">
       <h1>
         {isMyQuestion && (
           <span>
@@ -206,7 +199,7 @@ const QuestionPage = () => {
           )}
         </div>
 
-        <div className="page-item col">
+        <div id="article" className="page-item col">
           {!checked ? (
             <>
               <h2 id="subtopic">{q.subTopic}</h2>
@@ -260,7 +253,7 @@ const QuestionPage = () => {
         storeMessage={isMyQuestion ? true : false}
         ratingEnable={true}
       />
-    </div>
+    </QuestionPageDiv>
   );
 };
 
