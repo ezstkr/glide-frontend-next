@@ -2,8 +2,8 @@ import styled from 'styled-components';
 
 
 export const ResultPageDiv = styled.div`
-#result {
-    font-family: 'Inter';
+& {
+    font-family: var(--font-inter);
     color: #000000;
 
     #result-title {
@@ -82,6 +82,7 @@ p {
 
         p {
             font-weight: 500;
+            min-height: 72px;
         }
     }
 
