@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 
-export const ResultPageDiv = styled.div`
+const ResultPageDiv = styled.div`
 & {
     font-family: var(--font-inter);
     color: #000000;
@@ -113,3 +113,5 @@ p {
     }
 }
 `
+
+export default ResultPageDiv;

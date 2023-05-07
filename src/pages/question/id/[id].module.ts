@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 
-export const QuestionPageDiv = styled.div`
+const QuestionPageDiv = styled.div`
 gap: 32px;
 margin: 32px 0;
 
@@ -193,3 +193,5 @@ h1 {
     line-height: 24px;
 }
 `
+
+export default QuestionPageDiv;

@@ -12,7 +12,7 @@ import { selectQuestionItem } from "@/store/slices/questionSlice";
 import { selectNQuesetion, updateOMR } from "@/store/slices/OMRSlice";
 import { selectUserCurriculum, updateUserQuestion } from "@/store/slices/userSlice";
 import { selectBotisOpen, selectBotMessageData } from "@/store/slices/botSlice";
-import { QuestionPageDiv } from "./[id].styled";
+import QuestionPageDiv from "./[id].module";
 
 
 const QuestionPage = () => {

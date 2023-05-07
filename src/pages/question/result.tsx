@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 import { selectNQuesetion, selectOMRItem } from "@/store/slices/OMRSlice";
 
 import { CSSTransition } from 'react-transition-group';
-import { ResultPageDiv } from './result.styled';
+import ResultPageDiv from './result.module';
 
 
 const ResultPage: React.FC = () => {
