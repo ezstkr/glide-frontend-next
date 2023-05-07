@@ -37,7 +37,6 @@ const ChatBot: React.FC<Props> = ({
 }) => {
   const router = useRouter();
 
-  const initialScenario = scenario
   const [messageData, setMessageData] = useState<Array<MessageData>>([]);
   const [botTyping, setBotTyping] = useState(false);
   const [inputDisable, setInputDisable] = useState<boolean>(scenario.length === 0 ? false : true);
@@ -91,37 +90,39 @@ const ChatBot: React.FC<Props> = ({
   }, []);
 
   useEffect(() => {
-    if (isMountedRef.current && scenario !== initialScenario) {
+    if (isMountedRef.current) {
       startScenario();
     }
   }, [scenario]);
 
-  const botStart = () => {
-    startScenario();
-  };
-
   const startScenario = () => {
-    setScenarioIndex(0);
     if (scenario.length > 0) {
       setTimeout(() => {
-        nextScenario();
+        nextScenario(true);
       }, startMessageDelay);
     }
   };
 
-  const nextScenario = () => {
-    if (scenarioIndex > scenario.length - 1) {
+  const nextScenario = (init: boolean = false) => {
+    let _scenarioIndex = scenarioIndex;
+
+    if (init) {
+      setScenarioIndex(0);
+      _scenarioIndex = 0;
+    }
+
+    if (_scenarioIndex > scenario.length - 1) {
       console.log('다음 시나리오가 없습니다.');
       return;
     }
 
-    for (let i = 0; i < scenario[scenarioIndex].length; i++) {
+    for (let i = 0; i < scenario[_scenarioIndex].length; i++) {
       setBotTyping(true);
       setTimeout(() => {
-        const message = scenario[scenarioIndex][i];
+        const message = scenario[_scenarioIndex][i];
 
         if (storeMessage) {
-          setMessageData((prevData) => [...prevData, message]);
+          dispatch(addMessageData(message));
         } else {
           setMessageData((prevData) => [...prevData, message]);
         }
@@ -134,7 +135,7 @@ const ChatBot: React.FC<Props> = ({
         }
         setInputDisable(message.disableInput ?? false);
 
-        if (i === scenario[scenarioIndex].length - 1) {
+        if (i === scenario[_scenarioIndex].length - 1) {
           if (!message.botTyping) {
             setBotTyping(false);
           }
@@ -252,7 +253,6 @@ const ChatBot: React.FC<Props> = ({
         isOpen={isOpen}
         clearButton={clearButton}
         ratingEnable={ratingEnable}
-        onInit={botStart}
         onMsgSend={msgSend}
         onMsgClear={msgClear}
         onOpen={() => changeOpenState(true)}
