@@ -187,7 +187,7 @@ export default function Index() {
       
       if (!result.error) {
         const _userCurriculum = result.payload;
-        dispatch(clearMessageData);
+        dispatch(clearMessageData());
         if (scenario2[0][0].options) {
           scenario2[0][0].options[0].to = `/question/id/${
             _userCurriculum.length !== 0 ? _userCurriculum[0].questionId : 0

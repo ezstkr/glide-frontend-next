@@ -134,7 +134,7 @@ const QuestionPage = ({ session, id, q, passageWithHighlight }) => {
   };
 
   const check = () => {
-    const correct = userChoiceIndex === q.answerIndex
+    const correct = userChoiceIndex === answerIndex
     dispatch(updateUserQuestion({ questionId: q._id, solved: true, correct: correct }))
     dispatch(updateOMR({
       index: q_idx - 1, 
