@@ -2,6 +2,8 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { AppState } from "../store";
 import axios from '@/lib/api'
 import { Question, QuestionInit, GetQuestion, NextQuestion, GetNextQuestion } from '@/shared/types/question'
+import { getSession } from "next-auth/react";
+
 
 // Type for our state
 export interface QuestionState {
@@ -20,9 +22,15 @@ const initialState: QuestionState = {
 export const getQuestion = createAsyncThunk(
   'question/get',
   async ({id}: GetQuestion, { rejectWithValue }) => {
+    const session: any = await getSession()
+
     try {
-      const item = await axios.get(`/questions/${id}`);
-      return item;
+      const response = await axios.get(`/questions/${id}`, {
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`
+        }
+      });
+      return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
@@ -32,9 +40,15 @@ export const getQuestion = createAsyncThunk(
 export const getNextQuestion = createAsyncThunk(
   'question/getNext',
   async ({onlyUnsolved}: GetNextQuestion, { rejectWithValue }) => {
+    const session: any = await getSession()
+
     try {
-      const nextItem = await axios.get(`/users/next-question?onlyUnsolved=${onlyUnsolved}`);
-      return nextItem;
+      const response = await axios.get(`/users/next-question?onlyUnsolved=${onlyUnsolved}`, {
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`
+        }
+      });
+      return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
@@ -50,10 +64,10 @@ export const questionSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(getQuestion.fulfilled, (state, action) => {
-        state.item = action.payload.data;
+        state.item = action.payload;
       })
       .addCase(getNextQuestion.fulfilled, (state, action) => {
-        state.nextItem = action.payload.data;
+        state.nextItem = action.payload;
       });
   },
 });

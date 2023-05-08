@@ -180,16 +180,17 @@ export default function Index() {
     setCreateCurriculumForm((prev) => ({ ...prev, [key]: value }));
 
     if (key === 'topics') {
-      const response: any = await dispatch(createCurriculum({
+      const result: any = await dispatch(createCurriculum({
         ...createCurriculumForm,
         [key]: value,
       }));
-
-      if (!response.error) {
+      
+      if (!result.error) {
+        const _userCurriculum = result.payload;
         dispatch(clearMessageData);
         if (scenario2[0][0].options) {
           scenario2[0][0].options[0].to = `/question/id/${
-            userCurriculum.length !== 0 ? userCurriculum[0].questionId : 0
+            _userCurriculum.length !== 0 ? _userCurriculum[0].questionId : 0
           }`;
         }
         setScenario(scenario2);

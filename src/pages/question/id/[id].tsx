@@ -1,46 +1,75 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import axios from 'axios';
-import { Answer2Index, Answer2Symbol, Index2Answer, Question, QuestionInit } from '@/shared/types/question';
+import { useAxios } from '@/lib/api'
+import { getSession } from 'next-auth/react';
 import ChatBot from '@/components/chatbot';
-import { MessageData } from "react-chat-bot/src/shared/types/react-chat-bot";
-import { UpdateUserQuestion } from "@/shared/types/user";
-import { error_can_happen } from '@/hooks/util';
 
 import { useDispatch, useSelector } from "react-redux";
-import { selectQuestionItem } from "@/store/slices/questionSlice";
+// import { selectQuestionItem, getQuestion } from "@/store/slices/questionSlice";
 import { selectNQuesetion, updateOMR } from "@/store/slices/OMRSlice";
 import { selectUserCurriculum, updateUserQuestion } from "@/store/slices/userSlice";
 import { selectBotisOpen, selectBotMessageData } from "@/store/slices/botSlice";
+import { wrapper } from '@/store/store';
+
+import { MessageData } from "react-chat-bot/src/shared/types/react-chat-bot";
+import { Answer2Index, Answer2Symbol, Index2Answer, Question } from '@/shared/types/question';
+import { UpdateUserQuestion } from "@/shared/types/user";
 import QuestionPageDiv from "./[id].module";
 
 
-const QuestionPage = () => {
+export const getServerSideProps = wrapper.getServerSideProps(
+  (store) => async (ctx) => {
+    const session: any = await getSession(ctx)
+    const axios = useAxios(session?.accessToken);
+    const { id }: any = ctx.query;
+    
+    // const response1 = await store.dispatch(getQuestion({ id }))
+    const response1 = await axios.get(`/questions/${id}`)
+    const q: Question = response1.data
+    const choiceSymbols: Answer2Symbol = {'a': 'ⓐ', 'b': 'ⓑ', 'c': 'ⓒ', 'd': 'ⓓ'}
+    const passageWithHighlight = getPassageWithHighlight(q, choiceSymbols)
+
+    function getPassageWithHighlight(q: Question, choiceSymbols: Answer2Symbol) {
+      let passageWithHighlight = q.passage.slice();
+      for (const highlight of q?.highlight ?? []) {
+        passageWithHighlight = passageWithHighlight.replace(
+          highlight.sentence, 
+          `<span class="${highlight.correct ? 'green' : 'red'}">` 
+          + choiceSymbols[highlight.choice] + highlight.sentence + 
+          '</span>'
+        )
+      }
+
+      return passageWithHighlight
+    }
+
+    return ({ props: { session, id, q, passageWithHighlight } })
+  }
+)
+
+
+const QuestionPage = ({ session, id, q, passageWithHighlight }) => {
   const router = useRouter();
-  const { id } = router.query;
-  
+  const axios = useAxios(session?.accessToken);
+ 
   const dispatch = useDispatch();
   const userCurriculum = useSelector(selectUserCurriculum);
   const n_question = useSelector(selectNQuesetion);
-  const question = useSelector(selectQuestionItem);
+  // const q = useSelector(selectQuestionItem);
   const isOpenRedux = useSelector(selectBotisOpen);
   const messageData = useSelector(selectBotMessageData);
 
   const answer2Index: Answer2Index = {'a': 0, 'b': 1, 'c': 2, 'd': 3}
   const index2Answer: Index2Answer = {0: 'A', 1: 'B', 2: 'C', 3: 'D'}
-  const choiceSymbols: Answer2Symbol = {'a': 'ⓐ', 'b': 'ⓑ', 'c': 'ⓒ', 'd': 'ⓓ'}
   
-  const q_idx = userCurriculum.findIndex((item: UpdateUserQuestion) => item.questionId === question._id) + 1
+  const q_idx = userCurriculum.findIndex((item: UpdateUserQuestion) => item.questionId === q._id) + 1
   const isMyQuestion = q_idx !== 0
-  const q_explanation = question.explanation.replaceAll(String.fromCharCode(10), " <br><br> ")
-  const answerIndex = answer2Index[question.answer]
-  const correct = question.userChoiceIndex === question.answerIndex
+  const q_explanation = q.explanation.replaceAll(String.fromCharCode(10), " <br><br> ")
+  const answerIndex = answer2Index[q.answer]
   const isLastQuestion = q_idx === n_question
 
-  const [q, setQ] = useState<Question>(QuestionInit);
   const [userChoiceIndex, setUserChoiceIndex] = useState<null | number>(null);
   const [checked, setChecked] = useState<boolean>(false);
-  const [passageWithHighlight, setPassageWithHighlight] = useState<string>('');
   const [scenario, setScenario] = useState<MessageData[][]>([]);
 
   const startTextList = [
@@ -52,18 +81,15 @@ const QuestionPage = () => {
   ];
 
   useEffect(() => {
-    loadData();
+    setUserChoiceIndex(null);
+    setChecked(false);
+    updateScenarioData();
   }, [id]);
 
-  const loadData = async () => {
-    let qRes: any;
-    let res2: any;
-    await error_can_happen(async () => {
-      qRes = await axios.get(`/questions/${id}`);
-      res2 = await axios.post('/chat', { questionId: id, text: 'Try a similar example' })
-      setQ(qRes.data);
-    });
-    
+  const updateScenarioData = async () => {
+    const response2 = await axios.post('/chat', { questionId: id, text: 'Try a similar example' });
+    const similarExampleId = response2.data.response;
+
     const newScenario: MessageData[][] = [[{
       agent: 'bot',
       type: 'button',
@@ -83,7 +109,7 @@ const QuestionPage = () => {
         },
         {
           text: 'Try a similar example',
-          value: `/question/id/${res2?.data?.response}`,
+          value: `/question/id/${similarExampleId}`,
           action: 'url'
         },
         {
@@ -105,25 +131,15 @@ const QuestionPage = () => {
       ],
     }]];
     setScenario(newScenario);
-  
-    let passageWithHighlight = qRes.data.passage.slice();
-    for (const highlight of qRes?.data.highlight ?? []) {
-      passageWithHighlight = passageWithHighlight.replace(
-        highlight.sentence, 
-        `<span class="${highlight.correct ? 'green' : 'red'}">` 
-        + choiceSymbols[highlight.choice] + highlight.sentence + 
-        '</span>'
-      )
-    }
-    setPassageWithHighlight(passageWithHighlight);
   };
 
   const check = () => {
+    const correct = userChoiceIndex === q.answerIndex
     dispatch(updateUserQuestion({ questionId: q._id, solved: true, correct: correct }))
-    updateOMR({
+    dispatch(updateOMR({
       index: q_idx - 1, 
       correct: correct
-    })
+    }))
     setChecked(true)
   };
 

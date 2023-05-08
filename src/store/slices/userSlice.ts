@@ -1,9 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { AppState } from "../store";
 import axios from '@/lib/api'
-import { error_can_happen } from '@/hooks/util'
+import { getSession } from "next-auth/react"
+
 import { UpdateUserQuestion, CreateCurriculumForm } from '@/shared/types/user'
-import { getSession, useSession } from "next-auth/react"
+
 
 type UserState = {
   userCurriculum: UpdateUserQuestion[];
@@ -16,11 +17,18 @@ const initialState: UserState = {
 
 export const updateUserQuestion = createAsyncThunk(
   'user/updateUserQuestion',
-  async (payload: UpdateUserQuestion) => {
-    const { questionId, solved, correct } = payload;
-    await error_can_happen(async () => {
-      await axios.post(`/users/question`, { questionId, solved, correct });
-    });
+  async (payload: UpdateUserQuestion, { rejectWithValue }) => {
+    const session: any = await getSession()
+ 
+    try {
+      await axios.post(`/users/question`, payload, {
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`
+        }
+      });
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
   }
 );
 

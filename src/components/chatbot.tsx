@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
-import axios from 'axios';
 // import ReactChatBot, { MessageData, MessageDataOption } from 'react-chat-bot';
 import ReactChatBot, { MessageData, MessageDataOption } from 'react-chat-bot/src/react-chat-bot';
+import { useSession } from 'next-auth/react';
+import { useAxios } from '@/lib/api'
 
 import { useDispatch, useSelector } from "react-redux";
 import { setIsOpen, addMessageData, clearMessageData } from "@/store/slices/botSlice";
@@ -35,6 +36,8 @@ const ChatBot: React.FC<Props> = ({
   ratingEnable = false,
   onChange = () => {},
 }) => {
+  const { data: session }: any = useSession()
+  const axios = useAxios(session?.accessToken);
   const router = useRouter();
 
   const [messageData, setMessageData] = useState<Array<MessageData>>([]);
