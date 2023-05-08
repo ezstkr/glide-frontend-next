@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 // import ReactChatBot, { MessageData, MessageDataOption } from 'react-chat-bot';
 import ReactChatBot, { MessageData, MessageDataOption } from 'react-chat-bot/src/react-chat-bot';
 import { useSession } from 'next-auth/react';
@@ -262,16 +263,20 @@ const ChatBot: React.FC<Props> = ({
         onDestroy={() => changeOpenState(false)}
         header={
           <div slot="header" className="is-flex">
-            <img
+            <Image
               src="/icons/pinata.png"
-              width="32"
-              height="32"
+              width={32}
+              height={32}
               alt="pinata"
+              priority
             />
-            <img
-              className="ml-3"
+            <Image
               src="/icons/title/glide-28.svg"
-              alt="title"
+              width={48}
+              height={16}
+              alt="glide"
+              priority
+              className="ml-3"
             />
           </div>
         }

@@ -94,10 +94,10 @@ export default function Login() {
   return (
     <section id="login" className={`${styles.page} col-a-center mt-5 mb-6`}>
       <div className="col-a-center has-text-centered">
-        <Image src="/icons/pinata.png" width={144} height={144} priority alt="Pinata" className="mb-4" />
+        <Image src="/icons/pinata.png" alt="Pinata" width={144} height={144} priority className="mb-4" />
 
         <h1>
-          Welcome to <Image src="/icons/title/glide-30.svg" width={30} height={30} alt="Glide" />
+          Welcome to <Image src="/icons/title/glide-30.svg" alt="Glide" width={72} height={23} priority />
         </h1>
         <h2 className="mt-2">Your personalized AI Tutor for TOEFL</h2>
       </div>

@@ -92,7 +92,7 @@ const ResultPage: React.FC = () => {
           <div className="col-a-center">
             <h2>Result</h2>
   
-            <Image src={iconSrc} width={160} height={160} alt="Result Icon" />
+            <Image src={iconSrc} alt="Result Icon" width={160} height={160} priority />
   
             <h1>{resultKeyword.toUpperCase()}</h1>
           </div>

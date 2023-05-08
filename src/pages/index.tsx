@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import ChatBot from '@/components/chatbot';
 import { CreateCurriculumForm } from '@/shared/types/user';
 import { MessageData } from "react-chat-bot/src/shared/types/react-chat-bot";
@@ -215,7 +216,7 @@ export default function Index() {
       <CSSTransition in={transition.after_1000} classNames="slide-y-down" timeout={300} mountOnEnter>
         <div id="title" className={`${styles.title} ${transition.after_2000 ? styles.titleMoved : ''}`}>
           <h1>
-            Welcome to <img src="/icons/title/glide-30.svg" alt="Glide" />!
+            Welcome to <Image src="/icons/title/glide-30.svg" alt="Glide" width={72} height={23} priority />!
           </h1>
           <h2 className="mt-2">Your personalized AI Tutor for TOEFL</h2>
         </div>
