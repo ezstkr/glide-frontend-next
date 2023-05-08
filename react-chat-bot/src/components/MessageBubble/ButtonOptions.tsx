@@ -22,7 +22,7 @@ const ButtonOptions: React.FC<Props> = ({ mainData }) => {
       const selectedValue = Array.from(selectedItemMultiple).map(
         (item) => item.value
       );
-      const updatedValue = { ...value, text: selectedValue.join(', ') };
+      const updatedValue = { ...value, text: selectedValue.join(', '), value: selectedValue };
       EventBus.emit('select-button-option', updatedValue);
     } else {
       EventBus.emit('select-button-option', value);

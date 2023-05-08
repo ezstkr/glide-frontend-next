@@ -10,11 +10,13 @@ import { clearMessageData } from "@/store/slices/botSlice";
 
 import { CSSTransition } from 'react-transition-group';
 import styles from './index.module.scss';
+import useToast from '@/hooks/useToast';
 
 
 export default function Index() {
   const dispatch = useDispatch();
   const userCurriculum = useSelector(selectUserCurriculum);
+  const { showToast } = useToast()
 
   const [createCurriculumForm, setCreateCurriculumForm] = useState<CreateCurriculumForm>({});
   const [transition, setTransition] = useState({
@@ -174,20 +176,26 @@ export default function Index() {
     }, 3500);
   }
 
-  function updateForm({ key, value }: { key: string; value: any }) {
+  async function updateForm({ key, value }: { key: string; value: any }) {
     setCreateCurriculumForm((prev) => ({ ...prev, [key]: value }));
 
     if (key === 'topics') {
-      createCurriculum(createCurriculumForm);
-      dispatch(clearMessageData);
-      setTimeout(() => {
+      const response: any = await dispatch(createCurriculum({
+        ...createCurriculumForm,
+        [key]: value,
+      }));
+
+      if (!response.error) {
+        dispatch(clearMessageData);
         if (scenario2[0][0].options) {
           scenario2[0][0].options[0].to = `/question/id/${
             userCurriculum.length !== 0 ? userCurriculum[0].questionId : 0
           }`;
         }
         setScenario(scenario2);
-      }, 2000);
+      } else {
+        showToast({ message: '서버 오류!' })
+      }
     }
   }
 

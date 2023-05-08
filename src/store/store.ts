@@ -1,4 +1,5 @@
 import { combineReducers } from "redux";
+import type {} from 'redux-thunk/extend-redux' // https://github.com/reduxjs/redux-thunk/issues/333s
 import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
 import { createWrapper } from "next-redux-wrapper";
 

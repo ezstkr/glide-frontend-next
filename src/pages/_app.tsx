@@ -20,11 +20,11 @@ export default function App({ Component, ...rest }: AppProps) {
     <Provider store={store}>
       <PersistGate persistor={store.__persistor} loading={null}>
         <SessionProvider session={session}>
-          {/* <ChakraProvider theme={theme}> */}
+          <ChakraProvider theme={theme} resetCSS={false} >
             <Layout>
               <Component {...pageProps} />
             </Layout>
-          {/* </ChakraProvider> */}
+          </ChakraProvider>
         </SessionProvider>
       </PersistGate>
     </Provider>
