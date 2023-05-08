@@ -50,7 +50,7 @@ export default function SignUp() {
 
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     const name = e.target.value;
-    const available = nameRegex.test(nameField.name)
+    const available = nameRegex.test(name)
 
     setNameField({
       ...nameField,
@@ -62,7 +62,7 @@ export default function SignUp() {
 
   const handleIdChange = (e: ChangeEvent<HTMLInputElement>) => {
     const email = e.target.value;
-    const available = idRegex.test(idField.email)
+    const available = idRegex.test(email)
 
     setIdField({
       ...idField,
@@ -74,7 +74,7 @@ export default function SignUp() {
 
   const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
     const password = e.target.value;
-    const available = passwordRegex.test(passwordField.password)
+    const available = passwordRegex.test(password)
 
     setPasswordField({
       ...passwordField,
@@ -88,8 +88,8 @@ export default function SignUp() {
   const handlePassword2Change = (e: ChangeEvent<HTMLInputElement>) => {
     const password = e.target.value;
     const available =
-      passwordRegex.test(passwordField.password) &&
-      passwordField.password === passwordField2.password;
+      passwordRegex.test(password) &&
+      passwordField.password === password;
 
     setPasswordField2({
       ...passwordField2,
@@ -101,8 +101,7 @@ export default function SignUp() {
 
   const handleTokenChange = (e: ChangeEvent<HTMLInputElement>) => {
     const access_token = e.target.value;
-    const available = !!tokenField.access_token;
-
+    const available = !!access_token;
     setTokenField({
       ...tokenField,
       access_token,
@@ -119,17 +118,17 @@ export default function SignUp() {
   };
 
   const _signUp = async () => {
-    // if (!nameField.available) {
-    //   return document.getElementById('nameInput')?.focus();
-    // } else if (!idField.available) {
-    //     return document.getElementById('idInput')?.focus();
-    // } else if (!passwordField.available) {
-    //   return document.getElementById('passwordInput')?.focus();
-    // } else if (!passwordField2.available) {
-    //   return document.getElementById('password2Input')?.focus();
-    // } else if (!tokenField.available) {
-    //   return document.getElementById('tokenInput')?.focus();
-    // }
+    if (!nameField.available) {
+      return document.getElementById('nameInput')?.focus();
+    } else if (!idField.available) {
+        return document.getElementById('idInput')?.focus();
+    } else if (!passwordField.available) {
+      return document.getElementById('passwordInput')?.focus();
+    } else if (!passwordField2.available) {
+      return document.getElementById('password2Input')?.focus();
+    } else if (!tokenField.available) {
+      return document.getElementById('tokenInput')?.focus();
+    }
 
     const registration_data = {
       name: nameField.name,
@@ -141,9 +140,11 @@ export default function SignUp() {
     try {
       // TODO: make an HTTP POST request to `/auth/signup` endpoint
       // and handle the response accordingly
-      console.log('Registration data:', registration_data);
-      // axios.post('/auth/signup', registration_data)
-      router.push('/')
+      const response = await axios.post('/auth/signup', registration_data)
+      if (response.status === 200) {
+        router.push('/')
+      }
+      console.log(response)
     } catch (e) {
       console.error('Registration failed:', e);
     }

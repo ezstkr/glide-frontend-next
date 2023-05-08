@@ -36,24 +36,24 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleIdChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const _email = e.target.value;
+    const email = e.target.value;
 
     setIdField((prevState) => ({
       ...prevState,
-      email: _email,
-      available: idRegex.test(_email),
-      state: _email === '' ? '' : idRegex.test(_email) ? 'success' : 'danger',
+      email,
+      available: idRegex.test(email),
+      state: email === '' ? '' : idRegex.test(email) ? 'success' : 'danger',
     }));
   };
 
   const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const _password = e.target.value;
+    const password = e.target.value;
 
     setPasswordField((prevState) => ({
       ...prevState,
-      password: _password,
-      available: passwordRegex.test(_password),
-      state: _password === '' ? '' : passwordRegex.test(_password) ? 'success' : 'danger',
+      password,
+      available: passwordRegex.test(password),
+      state: password === '' ? '' : passwordRegex.test(password) ? 'success' : 'danger',
     }));
   };
   
@@ -72,13 +72,13 @@ export default function Login() {
     }
 
     try {
-      await signIn('credentials', { 
+      const response = await signIn('credentials', { 
         email: idField.email, 
         password: passwordField.password, 
         redirect: false, 
       });
 
-      if (session) {
+      if (response.status === 200) {
           showToast({ message: '로그인 성공!', status: 'success'});
           return router.push('/');
       } else {

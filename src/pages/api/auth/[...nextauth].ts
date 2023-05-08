@@ -1,5 +1,7 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from "next-auth/providers/credentials";
+import axios from '../../../lib/api'
+import { error_can_happen } from '@/hooks/util';
 
 
 export const authOptions = {
@@ -19,7 +21,11 @@ export const authOptions = {
       },
       async authorize(credentials, req) {
         // Add logic here to look up the user from the credentials supplied
-        const user = { id: "1", name: "J Smith", email: "jsmith@example.com" }
+        let response: any;
+        await error_can_happen(async () => {
+          response = await axios.post('/auth/signin', credentials)
+        })
+        const user = response.data
 
         if (user) {
           // Any object returned will be saved in `user` property of the JWT
