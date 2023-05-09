@@ -45,6 +45,8 @@ const ChatBot: React.FC<Props> = ({
   const [botTyping, setBotTyping] = useState(false);
   const [inputDisable, setInputDisable] = useState<boolean>(scenario.length === 0 ? false : true);
   const [scenarioIndex, setScenarioIndex] = useState(0);
+  const [similarQuestionId, setSimilarQuestionId] = useState('');
+  const [openNewWindow, setOpenNewWindow] = useState(false);
 
   const dispatch = useDispatch();
   const isOpenRedux = useSelector(selectBotisOpen);
@@ -87,6 +89,40 @@ const ChatBot: React.FC<Props> = ({
     }
   }, [])
 
+  useEffect(() => {
+    if (questionId === null || !session?.accessToken) return
+    
+    const optionExample = scenario.at(-1)[0].options.filter(option => option.text === 'Try a similar example')
+    if (optionExample.length === 0) return
+
+    axios.post('/chat', { questionId: questionId, text: 'Try a similar example' }).then((response) => {
+      setSimilarQuestionId(response.data.response)
+    })
+  }, [questionId, session]);
+
+  useEffect(() => {
+    if (similarQuestionId !== '') {
+      const messageBubbles = document.getElementsByClassName('qkb-msg-bubble--bot')
+      const LastMessageBubble = messageBubbles[messageBubbles.length - 1]
+      const URLElements = LastMessageBubble.querySelectorAll('a.qkb-mb-button-options__url')
+
+      for (const el of URLElements as NodeListOf<HTMLAnchorElement>) {
+        if (el.textContent === 'Try a similar example') {
+          el.href = `/question/id/${similarQuestionId}`
+          el.classList.remove('disabled')
+          break
+        }
+      }
+    }
+  }, [similarQuestionId]);
+
+  useEffect(() => {
+    if (similarQuestionId !== '' && openNewWindow) {
+      window.open(`/question/id/${similarQuestionId}`, '_blank');
+      setOpenNewWindow(false);
+    }
+  }, [similarQuestionId, openNewWindow]);
+
   const isMountedRef = useRef(false);
 
   useEffect(() => {
@@ -124,18 +160,10 @@ const ChatBot: React.FC<Props> = ({
       setBotTyping(true);
       setTimeout(() => {
         const message = scenario[_scenarioIndex][i];
-
-        if (storeMessage) {
-          dispatch(addMessageData(message));
-        } else {
-          setMessageData((prevData) => [...prevData, message]);
-        }
+        updateMessageData(message);
 
         if (isOpen) {
-          const messageSound = new Audio('/audios/bubble.mp3');
-          messageSound.muted = true;
-          messageSound.play();
-          messageSound.muted = false;
+          messageSound?.play();
         }
         setInputDisable(message.disableInput ?? false);
 
@@ -154,6 +182,8 @@ const ChatBot: React.FC<Props> = ({
       return router.push(data.to);
     } else if (data.emit !== undefined) {
       onChange(data.emit, { key: data.emit.slice(data.emit.indexOf(':')+1), value: data.value})
+    } else if (data.text === 'Try a similar example') {
+      return setOpenNewWindow(true);
     }
 
     const text = data.value !== 'Give me more hints' ? data.text : 'Give me more hints';
@@ -165,11 +195,7 @@ const ChatBot: React.FC<Props> = ({
       text: text,
     };
 
-    if (storeMessage) {
-      dispatch(addMessageData(message));
-    } else {
-      setMessageData((prevData) => [...prevData, message]);
-    }
+    updateMessageData(message);
 
     if (scenarioIndex <= scenario.length - 1) {
       nextScenario();
@@ -196,47 +222,52 @@ const ChatBot: React.FC<Props> = ({
   
     // Create new message from fake data
     axios.post('/chat', { questionId: questionId, text: text })
-      .then(response => {
+      .then(({ data }) => {
         let hintDenied = null;
-        if (response.data.response?.includes('I can only provide 3 hints')) {
+        const scenarioStart = scenario[0][0]
+        if (data.response?.includes('I can only provide 3 hints')) {
           hintDenied = true;
         } else {
           hintDenied = false;
         }
 
-        if (scenario[0][0].options === undefined) return;
+        if (scenarioStart.options === undefined) return;
   
-        let sourceButtonMini = scenario[0][0].options.slice(4, 5)[0];
-        if (scenario[0][0].options[4].text === 'Give me the source for this passage') {
+        let sourceButtonMini = scenarioStart.options.slice(4, 5)[0];
+        if (scenarioStart.options[4].text === 'Give me the source for this passage') {
           sourceButtonMini.text = 'Source for this passage';
         }
   
         const replyMessage = {
           type: 'button',
           agent: 'bot',
-          text: response.data.intend !== 'unrelated' ? 
-            response.data.response.replaceAll(String.fromCharCode(10), "<br>") : MessageUnrelated,
+          text: data.intend !== 'unrelated' ? 
+            data.response.replaceAll(String.fromCharCode(10), "<br>") : MessageUnrelated,
           reselectable: true,
-          options: response.data.intend !== 'hint' ? scenario[0][0].options.slice(0, 3) : 
+          options: data.intend !== 'hint' ? scenarioStart.options.slice(0, 3) : 
             !hintDenied ? [
               { text: 'Want more hint?', value: 'Give me more hints', action: 'postback'},
-              ...scenario[0][0].options.slice(1, 4),
+              ...scenarioStart.options.slice(1, 4),
             ] : [
-              ...scenario[0][0].options.slice(1, 4), 
+              ...scenarioStart.options.slice(1, 4), 
               sourceButtonMini,
             ]
         };
   
-        if (storeMessage) {
-          dispatch(addMessageData(replyMessage));
-        } else {
-          setMessageData([...messageData, replyMessage]);
-        }
+        updateMessageData(replyMessage);
         messageSound?.play();
   
         // finish
         setBotTyping(false);
       });
+  };
+
+  const updateMessageData = (replyMessage: MessageData) => {
+    if (storeMessage) {
+      dispatch(addMessageData(replyMessage));
+    } else {
+      setMessageData((prevData) => [...prevData, replyMessage]);
+    }
   };
 
   const changeOpenState = (isOpen: boolean) => {

@@ -23,9 +23,9 @@ export const getServerSideProps = wrapper.getServerSideProps(
     const axios = useAxios(session?.accessToken);
     const { id }: any = ctx.query;
     
-    // const response1 = await store.dispatch(getQuestion({ id }))
-    const response1 = await axios.get(`/questions/${id}`)
-    const q: Question = response1.data
+    // const response = await store.dispatch(getQuestion({ id }))
+    const response = await axios.get(`/questions/${id}`)
+    const q: Question = response.data
     const choiceSymbols: Answer2Symbol = {'a': 'ⓐ', 'b': 'ⓑ', 'c': 'ⓒ', 'd': 'ⓓ'}
     const passageWithHighlight = getPassageWithHighlight(q, choiceSymbols)
 
@@ -87,8 +87,8 @@ const QuestionPage = ({ session, id, q, passageWithHighlight }) => {
   }, [id]);
 
   const updateScenarioData = async () => {
-    const response2 = await axios.post('/chat', { questionId: id, text: 'Try a similar example' });
-    const similarExampleId = response2.data.response;
+    // const response = await axios.post('/chat', { questionId: id, text: 'Try a similar example' });
+    // const similarExampleId = response.data.response;
 
     const newScenario: MessageData[][] = [[{
       agent: 'bot',
@@ -109,7 +109,7 @@ const QuestionPage = ({ session, id, q, passageWithHighlight }) => {
         },
         {
           text: 'Try a similar example',
-          value: `/question/id/${similarExampleId}`,
+          value: ``, // /question/id/${similarExampleId}
           action: 'url'
         },
         {
