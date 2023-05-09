@@ -6,7 +6,7 @@ import { MessageData } from "react-chat-bot/src/shared/types/react-chat-bot";
 
 import { useDispatch, useSelector } from "react-redux";
 import { createCurriculum } from "@/store/slices/userSlice";
-import { selectUserCurriculum } from "@/store/slices/userSlice";
+// import { selectUserCurriculum } from "@/store/slices/userSlice";
 import { clearMessageData } from "@/store/slices/botSlice";
 
 import { CSSTransition } from 'react-transition-group';
@@ -16,7 +16,7 @@ import useToast from '@/hooks/useToast';
 
 export default function Index() {
   const dispatch = useDispatch();
-  const userCurriculum = useSelector(selectUserCurriculum);
+  // const userCurriculum = useSelector(selectUserCurriculum);
   const { showToast } = useToast()
 
   const [createCurriculumForm, setCreateCurriculumForm] = useState<CreateCurriculumForm>({});

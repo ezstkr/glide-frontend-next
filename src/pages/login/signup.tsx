@@ -233,7 +233,6 @@ export default function SignUp() {
                 value={passwordField.password}
                 color={passwordField.state}
                 placeholder={passwordField.placeholder}
-                password-reveal
                 type="password"
                 required
                 onInput={handlePasswordChange}

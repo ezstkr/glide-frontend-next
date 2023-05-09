@@ -1,21 +1,40 @@
-import { useState, ChangeEvent } from 'react';
+import { useState, ChangeEvent, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button, Form } from 'react-bulma-components';
 
-import { useSession, signIn } from "next-auth/react"
+import { signIn } from "next-auth/react"
 import { useRouter } from 'next/router';
+import { useSession, getSession } from 'next-auth/react';
 import useToast from '@/hooks/useToast';
 import { error_log } from '@/hooks/util';
 
 import styles from './index.module.scss'
 
 
+// export const getServerSideProps = async (ctx: any) => {
+//   const session: any = await getSession(ctx)
+
+//   if (session) {
+//     return {
+//       redirect: {
+//         destination: '/',
+//         permanent: false,
+//       },
+//     };
+//   }
+
+//   return {
+//     props: { session }
+//   };
+// };
+
+
 export default function Login() {
   const idRegex = /^[a-zA-Z0-9+-\_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
   const passwordRegex = /^[A-Za-z\d$@$!%*?&\-=_+]{8,}$/;
+  const { data: session }: any = useSession()
 
-  const { data: session } = useSession()
   const router = useRouter();
   const { showToast } = useToast();
 
@@ -34,6 +53,12 @@ export default function Login() {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (session) {
+      router.push('/')
+    }
+  }, [session])
 
   const handleIdChange = (e: ChangeEvent<HTMLInputElement>) => {
     const email = e.target.value;
@@ -79,10 +104,9 @@ export default function Login() {
       });
 
       if (response.status === 200) {
-          showToast({ message: '로그인 성공!', status: 'success'});
-          return router.push('/');
+        return showToast({ message: '로그인 성공!', status: 'success'});
       } else {
-          return showToast({ message: '로그인 실패, ID와 비밀번호를 다시한번 확인해 주세요.' });
+        return showToast({ message: '로그인 실패, ID와 비밀번호를 다시한번 확인해 주세요.' });
       }
     } catch (e: any) {
       showToast({ message: e.response?.data?.message ?? '로그인 실패'});

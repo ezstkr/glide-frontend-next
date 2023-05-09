@@ -80,10 +80,18 @@ const ButtonOptions: React.FC<Props> = ({ mainData }) => {
               >
                 <span>{item.text}</span>
               </button>
+            ) : disabled || (mainData.options_multiple_choice && selectedItemMultiple.size === 0) ? (
+              <a
+                className={`qkb-mb-button-options__btn qkb-mb-button-options__url disabled`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span>{item.text}</span>
+              </a>
             ) : (
               <a
-                className={`qkb-mb-button-options__btn qkb-mb-button-options__url${disabled ? ' disabled' : ''}`}
-                href={disabled || (mainData.options_multiple_choice && selectedItemMultiple.size === 0) ? item.value : '#'}
+                className={`qkb-mb-button-options__btn qkb-mb-button-options__url`}
+                href={item.value}
                 target="_blank"
                 rel="noopener noreferrer"
               >
