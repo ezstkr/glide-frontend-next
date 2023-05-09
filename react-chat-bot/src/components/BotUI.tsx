@@ -119,9 +119,9 @@ const BotUI: React.FC<Props> = ({
     onMsgSend(value);
   };
 
-  // const clearChat = () => {
-  //   onMsgClear();
-  // };
+  const clearChat = () => {
+    onMsgClear();
+  };
 
   const uiClasses = [];
   uiClasses.push('qkb-bot-ui');

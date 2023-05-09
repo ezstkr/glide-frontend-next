@@ -88,7 +88,9 @@ const ResultPage: React.FC = () => {
   return (
     <ResultPageDiv id="result" className="w-100">
       <div id="result-title" className="has-background-light2 py-4">
-        <CSSTransition in={transition.after_2000} classNames="slide-y-down-500" timeout={500} mountOnEnter>
+        <CSSTransition in={transition.after_2000} classNames="slide-y-down-500" timeout={500}
+          style={{visibility: transition.after_2000 ? 'visible' : 'hidden'}}
+        >
           <div className="col-a-center">
             <h2>Result</h2>
   

@@ -39,8 +39,7 @@
   }
   width: 440px !important;
   height: 594px !important;
-
-  background-color: #F3F4F6 !important;
+  background-color: #F9FAFB !important;
 
   .qkb-board-header {
     height: 64px;
@@ -74,6 +73,7 @@
   left: 50%;
   transform: translateX(-50%);
   box-shadow: none;
+  background-color: #F3F4F6 !important;
 
   @media screen and (max-width: 1024px) {
     $header-height: 52px;
