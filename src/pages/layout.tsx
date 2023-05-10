@@ -3,6 +3,7 @@ import Header from '@/components/header';
 import { useRouter } from 'next/router';
 import styles from './layout.module.scss';
 import { inter } from '@/styles/fonts';
+import Head from 'next/head'
 
 type LayoutProps = {
   children: ReactNode;
@@ -33,11 +34,17 @@ export default function Layout({ children }: LayoutProps) {
   }, []);
 
   return (
-    <div className={backgroundClassName}>
-      <Header />
-      <div className={`${styles.container} ${inter.variable} col-a-center is-10`}>
-        {children}
+    <>
+      <Head>
+        <title>Glide AI</title>
+      </Head>
+
+      <div className={backgroundClassName}>
+        <Header />
+        <div className={`${styles.container} ${inter.variable} col-a-center is-10`}>
+          {children}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
