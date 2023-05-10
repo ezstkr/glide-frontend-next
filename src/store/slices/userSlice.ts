@@ -21,11 +21,12 @@ export const updateUserQuestion = createAsyncThunk(
     const session: any = await getSession()
  
     try {
-      await axios.post(`/users/question`, payload, {
+      const response = await axios.post(`/users/question`, payload, {
         headers: {
           Authorization: `Bearer ${session.accessToken}`
         }
       });
+      return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
@@ -57,7 +58,8 @@ export const userSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder.addCase(updateUserQuestion.fulfilled, (state, action) => {
-      // You can update the state based on the action result here, if needed.
+      const idx = state.userCurriculum.findIndex(item => item.questionId === action.payload.questionId)
+      state.userCurriculum[idx] = action.payload
     });
     builder.addCase(createCurriculum.fulfilled, (state, action) => {
       state.userCurriculum = action.payload;

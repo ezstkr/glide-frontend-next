@@ -150,9 +150,13 @@ const QuestionPage = ({ session, id, q, passageWithHighlight }) => {
     setScenario(newScenario);
   };
 
-  const check = () => {
+  const check = async () => {
     const correct = userChoiceIndex === answerIndex
     dispatch(updateUserQuestion({ questionId: q._id, solved: true, correct: correct }))
+      .then(async (result: any) => {
+        if (!!result.error) await signOut()
+      }
+    )
     dispatch(updateOMR({
       index: q_idx - 1, 
       correct: correct
