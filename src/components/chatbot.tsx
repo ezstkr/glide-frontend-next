@@ -7,7 +7,7 @@ import { useSession } from 'next-auth/react';
 import { useAxios } from '@/lib/api'
 
 import { useDispatch, useSelector } from "react-redux";
-import { setIsOpen, addMessageData, clearMessageData } from "@/store/slices/botSlice";
+import { setIsOpen, setMessageData as setMessageDataRedux, addMessageData, clearMessageData } from "@/store/slices/botSlice";
 import { selectBotisOpen, selectBotMessageData } from "@/store/slices/botSlice";
 import styles from './chatbot.module.scss';
 
@@ -124,18 +124,10 @@ const ChatBot: React.FC<Props> = ({
       setBotTyping(true);
       setTimeout(() => {
         const message = scenario[_scenarioIndex][i];
-
-        if (storeMessage) {
-          dispatch(addMessageData(message));
-        } else {
-          setMessageData((prevData) => [...prevData, message]);
-        }
+        updateMessageData(message);
 
         if (isOpen) {
-          const messageSound = new Audio('/audios/bubble.mp3');
-          messageSound.muted = true;
-          messageSound.play();
-          messageSound.muted = false;
+          messageSound?.play();
         }
         setInputDisable(message.disableInput ?? false);
 
@@ -165,11 +157,7 @@ const ChatBot: React.FC<Props> = ({
       text: text,
     };
 
-    if (storeMessage) {
-      dispatch(addMessageData(message));
-    } else {
-      setMessageData((prevData) => [...prevData, message]);
-    }
+    updateMessageData(message);
 
     if (scenarioIndex <= scenario.length - 1) {
       nextScenario();
@@ -195,49 +183,83 @@ const ChatBot: React.FC<Props> = ({
     // Then get the response as below
   
     // Create new message from fake data
-    axios.post('/chat', { questionId: questionId, text: text })
-      .then(response => {
+    axios.post('/chat', { questionId: questionId, text: text }, {
+      headers: {
+        'Authorization': `Bearer ${session?.accessToken}`
+      }
+    })
+      .then(({ data }) => {
+        if (data.intend === 'similar-question') {
+          setBotTyping(false);
+          const similarQuestionId = data.response
+          return handleSimilarQuestionResponse(similarQuestionId)
+        }
+
         let hintDenied = null;
-        if (response.data.response?.includes('I can only provide 3 hints')) {
+        const scenarioStart = scenario[0][0]
+        if (data.response?.includes('I can only provide 3 hints')) {
           hintDenied = true;
         } else {
           hintDenied = false;
         }
 
-        if (scenario[0][0].options === undefined) return;
+        if (scenarioStart.options === undefined) return;
   
-        let sourceButtonMini = scenario[0][0].options.slice(4, 5)[0];
-        if (scenario[0][0].options[4].text === 'Give me the source for this passage') {
+        let sourceButtonMini = scenarioStart.options.slice(4, 5)[0];
+        if (scenarioStart.options[4].text === 'Give me the source for this passage') {
           sourceButtonMini.text = 'Source for this passage';
         }
   
         const replyMessage = {
           type: 'button',
           agent: 'bot',
-          text: response.data.intend !== 'unrelated' ? 
-            response.data.response.replaceAll(String.fromCharCode(10), "<br>") : MessageUnrelated,
+          text: data.intend !== 'unrelated' ? 
+            data.response.replaceAll(String.fromCharCode(10), "<br>") : MessageUnrelated,
           reselectable: true,
-          options: response.data.intend !== 'hint' ? scenario[0][0].options.slice(0, 3) : 
+          options: data.intend !== 'hint' ? scenarioStart.options.slice(0, 3) : 
             !hintDenied ? [
               { text: 'Want more hint?', value: 'Give me more hints', action: 'postback'},
-              ...scenario[0][0].options.slice(1, 4),
+              ...scenarioStart.options.slice(1, 4),
             ] : [
-              ...scenario[0][0].options.slice(1, 4), 
+              ...scenarioStart.options.slice(1, 4), 
               sourceButtonMini,
             ]
         };
   
-        if (storeMessage) {
-          dispatch(addMessageData(replyMessage));
-        } else {
-          setMessageData([...messageData, replyMessage]);
-        }
+        updateMessageData(replyMessage);
         messageSound?.play();
   
         // finish
         setBotTyping(false);
       });
   };
+
+  const updateMessageData = (replyMessage: MessageData) => {
+    if (storeMessage) {
+      dispatch(addMessageData(replyMessage));
+    } else {
+      setMessageData((prevData) => [...prevData, replyMessage]);
+    }
+  };
+
+  const handleSimilarQuestionResponse = (similarQuestionId: number) => {
+    let lastData = JSON.parse(JSON.stringify(messageDataRedux.at(-1)));
+    const idx = lastData.options.findIndex((option: MessageDataOption) => option.text === 'Try a similar example')
+
+    lastData.options[idx] = {
+      text: 'Try a similar example',
+      action: 'url',
+      value: `/question/id/${similarQuestionId}`,
+    }
+
+    if (storeMessage) {
+      dispatch(setMessageDataRedux([...messageDataRedux.slice(0, messageDataRedux.length - 1), lastData]));
+    } else {
+      setMessageData((prevData) => [...prevData.slice(0, prevData.length-2), lastData]);
+    }
+
+    return window.open(`/question/id/${similarQuestionId}`, '_blank');
+    }
 
   const changeOpenState = (isOpen: boolean) => {
     dispatch(setIsOpen(isOpen));

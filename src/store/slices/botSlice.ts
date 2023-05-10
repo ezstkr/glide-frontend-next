@@ -23,6 +23,10 @@ export const botSlice = createSlice({
     setIsOpen(state, action) {
       state.isOpen = action.payload;
     },
+
+    setMessageData(state, action) {
+      state.messageData = action.payload
+    },
   
     addMessageData(state, action) {
       state.messageData.push(action.payload)
@@ -34,7 +38,7 @@ export const botSlice = createSlice({
   },
 });
 
-export const { setIsOpen, addMessageData, clearMessageData } = botSlice.actions;
+export const { setIsOpen, setMessageData, addMessageData, clearMessageData } = botSlice.actions;
 
 export const selectBotisOpen = (state: AppState) => state.bot.isOpen;
 export const selectBotMessageData = (state: AppState) => state.bot.messageData;
