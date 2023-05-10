@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { useAxios } from '@/lib/api'
 import { getSession } from 'next-auth/react';
 import ChatBot from '@/components/chatbot';
+import { signOut } from 'next-auth/react'
 
 import { useDispatch, useSelector } from "react-redux";
 // import { selectQuestionItem, getQuestion } from "@/store/slices/questionSlice";
@@ -23,11 +24,19 @@ export const getServerSideProps = wrapper.getServerSideProps(
     const axios = useAxios(session?.accessToken);
     const { id }: any = ctx.query;
     
-    // const response1 = await store.dispatch(getQuestion({ id }))
-    const response1 = await axios.get(`/questions/${id}`)
-    const q: Question = response1.data
-    const choiceSymbols: Answer2Symbol = {'a': 'ⓐ', 'b': 'ⓑ', 'c': 'ⓒ', 'd': 'ⓓ'}
-    const passageWithHighlight = getPassageWithHighlight(q, choiceSymbols)
+    let response: any, q: Question | any, passageWithHighlight: string;
+    try {
+      // const response = await store.dispatch(getQuestion({ id }))
+      response = await axios.get(`/questions/${id}`)
+      q  = response.data
+      const choiceSymbols: Answer2Symbol = {'a': 'ⓐ', 'b': 'ⓑ', 'c': 'ⓒ', 'd': 'ⓓ'}
+      passageWithHighlight = getPassageWithHighlight(q, choiceSymbols)
+    } catch (e) {
+      q = e.response.data
+      passageWithHighlight = ''
+    } finally {
+      return ({ props: { session, id, q, passageWithHighlight } })
+    }
 
     function getPassageWithHighlight(q: Question, choiceSymbols: Answer2Symbol) {
       let passageWithHighlight = q.passage.slice();
@@ -42,14 +51,22 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
       return passageWithHighlight
     }
-
-    return ({ props: { session, id, q, passageWithHighlight } })
   }
 )
 
 
 const QuestionPage = ({ session, id, q, passageWithHighlight }) => {
   const router = useRouter();
+
+  if (q.statusCode && q.statusCode !== 200) {
+    if (q.statusCode === 401) {
+      signOut()
+    } else {
+      router.push('/')
+    }
+    return <></>
+  }
+
   const axios = useAxios(session?.accessToken);
  
   const dispatch = useDispatch();
@@ -87,8 +104,8 @@ const QuestionPage = ({ session, id, q, passageWithHighlight }) => {
   }, [id]);
 
   const updateScenarioData = async () => {
-    const response2 = await axios.post('/chat', { questionId: id, text: 'Try a similar example' });
-    const similarExampleId = response2.data.response;
+    // const response = await axios.post('/chat', { questionId: id, text: 'Try a similar example' });
+    // const similarExampleId = response.data.response;
 
     const newScenario: MessageData[][] = [[{
       agent: 'bot',
@@ -109,8 +126,8 @@ const QuestionPage = ({ session, id, q, passageWithHighlight }) => {
         },
         {
           text: 'Try a similar example',
-          value: `/question/id/${similarExampleId}`,
-          action: 'url'
+          value: ``, // /question/id/${similarExampleId}
+          action: 'postback'
         },
         {
           text: 'Key vocabulary',

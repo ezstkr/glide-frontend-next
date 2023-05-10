@@ -3,6 +3,7 @@ import Image from 'next/image';
 import ChatBot from '@/components/chatbot';
 import { CreateCurriculumForm } from '@/shared/types/user';
 import { MessageData } from "react-chat-bot/src/shared/types/react-chat-bot";
+import { signOut } from 'next-auth/react'
 
 import { useDispatch, useSelector } from "react-redux";
 import { createCurriculum } from "@/store/slices/userSlice";
@@ -196,6 +197,7 @@ export default function Index() {
         }
         setScenario(scenario2);
       } else {
+        await signOut()
         showToast({ message: '서버 오류!' })
       }
     }
