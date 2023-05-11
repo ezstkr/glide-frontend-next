@@ -177,7 +177,7 @@ export default function Login() {
                   type="password"
                   required
                   onInput={handlePasswordChange}
-                  onPaste={(e) => e.preventDefault()}
+                  // onPaste={(e) => e.preventDefault()}
                   onKeyPress={(e) => e.key === 'Enter' && login()}
                 />
               </Form.Control>

@@ -141,7 +141,7 @@ export default function SignUp() {
       // TODO: make an HTTP POST request to `/auth/signup` endpoint
       // and handle the response accordingly
       const response = await axios.post('/auth/signup', registration_data)
-      if (response.status === 200) {
+      if (response.status === 201) {
         router.push('/')
       }
       console.log(response)
@@ -265,7 +265,7 @@ export default function SignUp() {
                 type="password"
                 required
                 onInput={handlePassword2Change}
-                onPaste={(e) => e.preventDefault()}
+                // onPaste={(e) => e.preventDefault()}
               />
             </Form.Field>
           </div>
