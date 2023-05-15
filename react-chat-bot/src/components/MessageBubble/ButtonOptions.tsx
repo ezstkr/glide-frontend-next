@@ -51,7 +51,7 @@ const ButtonOptions: React.FC<Props> = ({ mainData }) => {
         {mainData.type === 'text' ? (
           mainData.text
         ) : ['html', 'button'].includes(mainData.type) ? (
-          <div dangerouslySetInnerHTML={{ __html: mainData.text }}></div>
+          <div dangerouslySetInnerHTML={{ __html: mainData.text ?? '' }}></div>
         ) : null}
       </div>
       {mainData.options_multiple_choice && (

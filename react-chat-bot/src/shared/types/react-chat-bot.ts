@@ -10,6 +10,13 @@ export interface MessageDataOption extends MessageDataOptionBasic {
   emit?: string; // 옵션 클릭시 이벤트 발생
 }
 
+export interface MetaData {
+  url: string;
+  title: string;
+  description: string;
+  image: string;
+}
+
 export interface MessageData {
   agent: string; // 메세지 보내는 사람 (user: 사용자, bot: 챗봇)
   type: string // 메세지 타입 (text: 단순 텍스트, button: options, options_multiple_choice 같은 선택지 옵션 존재)
@@ -20,4 +27,6 @@ export interface MessageData {
   botTyping?: boolean; // 챗봇이 타이핑 중인지 여부
   options?: MessageDataOption[]; // 단일 선택 옵션
   options_multiple_choice?: MessageDataOptionBasic[]; // 복수 선택 옵션 (존재할 시 단일 선택 옵션은 선택 확정 옵션이어야 함)
+  metaDataList?: MetaData[]; // 메세지에 포함된 url
+  urlText?: string; // url 텍스트
 }

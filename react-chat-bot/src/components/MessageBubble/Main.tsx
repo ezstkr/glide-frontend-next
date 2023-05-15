@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import SingleText from './SingleText';
 import ButtonOptions from './ButtonOptions';
+import UrlPreview from './UrlPreview';
 import { MessageData } from '../../shared/types/react-chat-bot';
 
 interface Props {
@@ -20,6 +21,9 @@ const MsgBubble: React.FC<Props> = ({ message, showUserIcon = false, ratingEnabl
   switch (message.type) {
     case 'button':
       componentType = <ButtonOptions mainData={message} />;
+      break;
+    case 'url':
+      componentType = <UrlPreview mainData={message} />;
       break;
     default:
       componentType = <SingleText mainData={message} />;

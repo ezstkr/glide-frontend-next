@@ -219,6 +219,30 @@ const ChatBot: React.FC<Props> = ({
         setBotTyping(false);
       });
   };
+  
+  const getMetadataAll = async (urls: string[]) => {
+    return Promise.all(urls?.map((url) => getMetadata(url)));
+  }
+
+  const getMetadata = async (url: string) => {
+    // Fetch the HTML from the URL
+    const response = await fetch(url);
+    const html = await response.text();
+  
+    // Parse the HTML into a document
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+  
+    // Extract the metadata
+    const metadata = {
+      url: url,
+      title: doc.querySelector('title')?.innerText ?? '',
+      description: doc.querySelector('meta[name="description"]')?.getAttribute('content') ?? '',
+      image: doc.querySelector('meta[property="og:image"]')?.getAttribute('content') ?? '',
+      // ...extract other metadata as needed...
+    };
+  
+    return metadata;
+  }
 
   const buildReplyMessage = (data) => {
     let hintDenied = null;
