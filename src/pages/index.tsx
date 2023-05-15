@@ -144,8 +144,7 @@ export default function Index() {
           {
             text: 'Let’s Start!',
             value: null,
-            action: 'postback',
-            to: '',
+            action: 'url',
           },
         ],
       },
@@ -191,7 +190,7 @@ export default function Index() {
         const _userCurriculum = result.payload;
         dispatch(clearMessageData());
         if (scenario2[0][0].options) {
-          scenario2[0][0].options[0].to = `/question/id/${
+          scenario2[0][0].options[0].value = `/question/id/${
             _userCurriculum.length !== 0 ? _userCurriculum[0].questionId : 0
           }`;
         }

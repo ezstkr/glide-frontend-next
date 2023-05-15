@@ -40,6 +40,7 @@ const ChatBot: React.FC<Props> = ({
   const { data: session }: any = useSession()
   const axios = useAxios(session?.accessToken);
   const router = useRouter();
+  const isMountedRef = useRef(false);
 
   const [messageData, setMessageData] = useState<Array<MessageData>>([]);
   const [botTyping, setBotTyping] = useState(false);
@@ -73,11 +74,18 @@ const ChatBot: React.FC<Props> = ({
     iconBubbleSrc: '/icons/bubble.svg',
     iconCloseSrc: '/icons/close.svg',
     iconCloseHeaderSrc: '/icons/arrow-down-invert.svg',
+    messageSoundOption: {
+      src: '/audios/bubble.mp3',
+      volume: 0.7,
+    },
   };
 
+  // Message Sound Loading
   useEffect(() => {
-    messageSound = new Audio('/audios/bubble.mp3')
-    messageSound.volume = 0.7
+    if (botOptions.messageSoundOption.src) {
+      messageSound = new Audio(botOptions.messageSoundOption.src)
+      messageSound.volume = botOptions.messageSoundOption.volume
+    }
     
     return () => {
       if (messageSound) {
@@ -87,12 +95,12 @@ const ChatBot: React.FC<Props> = ({
     }
   }, [])
 
-  const isMountedRef = useRef(false);
-
+  // Mounted Check
   useEffect(() => {
     isMountedRef.current = true;
   }, []);
 
+  // Scenario Start
   useEffect(() => {
     if (isMountedRef.current) {
       startScenario();
@@ -142,8 +150,8 @@ const ChatBot: React.FC<Props> = ({
   };
 
   const msgSend = (data: MessageDataOption) => {
-    if (data.to !== undefined) {
-      return router.push(data.to);
+    if (data.action === 'url') {
+      return router.push(data.value);
     } else if (data.emit !== undefined) {
       onChange(data.emit, { key: data.emit.slice(data.emit.indexOf(':')+1), value: data.value})
     }
@@ -175,65 +183,6 @@ const ChatBot: React.FC<Props> = ({
     startScenario();
   };
 
-  const getResponse = (text: any) => {
-    // Loading
-    setBotTyping(true);
-  
-    // Post the message from user here
-    // Then get the response as below
-  
-    // Create new message from fake data
-    axios.post('/chat', { questionId: questionId, text: text }, {
-      headers: {
-        'Authorization': `Bearer ${session?.accessToken}`
-      }
-    })
-      .then(({ data }) => {
-        if (data.intend === 'similar-question') {
-          setBotTyping(false);
-          const similarQuestionId = data.response
-          return handleSimilarQuestionResponse(similarQuestionId)
-        }
-
-        let hintDenied = null;
-        const scenarioStart = scenario[0][0]
-        if (data.response?.includes('I can only provide 3 hints')) {
-          hintDenied = true;
-        } else {
-          hintDenied = false;
-        }
-
-        if (scenarioStart.options === undefined) return;
-  
-        let sourceButtonMini = scenarioStart.options.slice(4, 5)[0];
-        if (scenarioStart.options[4].text === 'Give me the source for this passage') {
-          sourceButtonMini.text = 'Source for this passage';
-        }
-  
-        const replyMessage = {
-          type: 'button',
-          agent: 'bot',
-          text: data.intend !== 'unrelated' ? 
-            data.response.replaceAll(String.fromCharCode(10), "<br>") : MessageUnrelated,
-          reselectable: true,
-          options: data.intend !== 'hint' ? scenarioStart.options.slice(0, 3) : 
-            !hintDenied ? [
-              { text: 'Want more hint?', value: 'Give me more hints', action: 'postback'},
-              ...scenarioStart.options.slice(1, 4),
-            ] : [
-              ...scenarioStart.options.slice(1, 4), 
-              sourceButtonMini,
-            ]
-        };
-  
-        updateMessageData(replyMessage);
-        messageSound?.play();
-  
-        // finish
-        setBotTyping(false);
-      });
-  };
-
   const updateMessageData = (replyMessage: MessageData) => {
     if (storeMessage) {
       dispatch(addMessageData(replyMessage));
@@ -241,6 +190,78 @@ const ChatBot: React.FC<Props> = ({
       setMessageData((prevData) => [...prevData, replyMessage]);
     }
   };
+
+  const changeOpenState = (isOpen: boolean) => {
+    dispatch(setIsOpen(isOpen));
+  };
+
+  const getResponse = (text: any) => {
+    // Loading
+    setBotTyping(true);
+  
+    axios.post('/chat', { questionId: questionId, text: text }, {
+      headers: {
+        'Authorization': `Bearer ${session?.accessToken}`
+      }
+    })
+      .then(({ data }) => {
+        switch (data.intend) {
+          case 'similar-question':
+            const similarQuestionId = data.response;
+            handleSimilarQuestionResponse(similarQuestionId);
+            break;
+          default:
+            const replyMessage = buildReplyMessage(data);
+            updateMessageData(replyMessage);
+            messageSound?.play();
+        }
+        // finish
+        setBotTyping(false);
+      });
+  };
+
+  const buildReplyMessage = (data) => {
+    let hintDenied = null;
+    const scenarioStart = scenario[0][0]
+    if (data.response?.includes('I can only provide 3 hints')) {
+      hintDenied = true;
+    } else {
+      hintDenied = false;
+    }
+
+    if (scenarioStart.options === undefined) return;
+
+    let sourceButtonMini = scenarioStart.options.slice(4, 5)[0];
+    if (scenarioStart.options[4].text === 'Give me the source for this passage') {
+      sourceButtonMini.text = 'Source for this passage';
+    }
+
+    const replyMessage = {
+      type: 'button',
+      agent: 'bot',
+      text: data.intend !== 'unrelated' ? 
+        data.response.replaceAll(String.fromCharCode(10), "<br>") : MessageUnrelated,
+      reselectable: true,
+      options: data.intend !== 'hint' ? [
+          { action: 'postback', value: null, text: 'Give me a hint' },
+          { action: 'postback', value: null, text: 'Quiz me!' },
+          { action: 'postback', value: null, text: 'Try a similar example' },
+        ] : !hintDenied ? [
+          { action: 'postback', value: null, text: 'Want more hint?' },
+          { action: 'postback', value: null, text: 'Quiz me!' },
+          { action: 'postback', value: null, text: 'Try a similar example' },
+          { action: 'postback', value: null, text: 'Key vocabulary' },
+        ] : [
+          { action: 'postback', value: null, text: 'Quiz me!' },
+          { action: 'postback', value: null, text: 'Try a similar example' },
+          { action: 'postback', value: null, text: 'Key vocabulary' },
+          sourceButtonMini,
+        ]
+    };
+
+    return replyMessage;
+  }
+
 
   const handleSimilarQuestionResponse = (similarQuestionId: number) => {
     let lastData = JSON.parse(JSON.stringify(messageDataRedux.at(-1)));
@@ -259,10 +280,6 @@ const ChatBot: React.FC<Props> = ({
     }
 
     return window.open(`/question/id/${similarQuestionId}`, '_blank');
-    }
-
-  const changeOpenState = (isOpen: boolean) => {
-    dispatch(setIsOpen(isOpen));
   };
 
   return (

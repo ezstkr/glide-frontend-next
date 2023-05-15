@@ -114,35 +114,15 @@ const QuestionPage = ({ session, id, q, passageWithHighlight }) => {
       disableInput: false,
       reselectable: true,
       options: [
-        {
-          text: 'Give me a hint',
-          value: 'Give me a hint',
-          action: 'postback'
-        },
-        {
-          text: 'Quiz me!',
-          value: 'Quiz me!',
-          action: 'postback'
-        },
-        {
-          text: 'Try a similar example',
-          value: ``, // /question/id/${similarExampleId}
-          action: 'postback'
-        },
-        {
-          text: 'Key vocabulary',
-          value: 'Key vocabulary',
-          action: 'postback'
-        },
-        {
-          ...q_idx === 1 ? {
-            text: messageData.length === 0 ? 'Give me the source for this passage' : 'Source for this passage',
-            value: q.url,
-            action: 'url'
-          } : {
-            text: 'Translate to Korean',
-            value: 'Translate to Korean',
-            action: 'postback'
+        { action: 'postback', value: null, text: 'Give me a hint' },
+        { action: 'postback', value: null, text: 'Quiz me!' },
+        { action: 'postback', value: null, text: 'Try a similar example' },
+        { action: 'postback', value: null, text: 'Key vocabulary' },
+        { ...
+          q_idx === 1 ? { 
+            action: 'url', value: q.url, text: messageData.length === 0 ? 'Give me the source for this passage' : 'Source for this passage',
+          } : { 
+            action: 'postback', value: null, text: 'Translate to Korean' 
           },
         }
       ],
