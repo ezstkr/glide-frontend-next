@@ -231,6 +231,12 @@ export default function Index() {
         scenario={scenario}
         onChange={handleChatBotEvent}
       />
+
+      <ChatBot
+        clearButton={true}
+        isOpen={true}
+        ratingEnable={true}
+      />
     </div>
   );
 };

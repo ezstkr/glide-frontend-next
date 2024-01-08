@@ -198,6 +198,21 @@ const ChatBot: React.FC<Props> = ({
   const getResponse = (text: any) => {
     // Loading
     setBotTyping(true);
+
+    const urls = ['https://fastcampus.co.kr/data_online_dpnlp', 'https://fastcampus.co.kr/data_online_dpnlg']
+
+    getMetadataAll(urls).then((metaDataList) => {
+      updateMessageData({
+        agent: 'bot',
+        type: 'url',
+        metaDataList,
+        urlText: '강의 바로가기'
+      })
+
+      setBotTyping(false);
+    })
+
+    return
   
     axios.post('/chat', { questionId: questionId, text: text }, {
       headers: {
